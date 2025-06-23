@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type Tech struct {
-	Id          string
+	ID          string
 	Name        string
 	Description *string
 	LogoURL     *string

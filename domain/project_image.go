@@ -3,8 +3,8 @@ package domain
 import "time"
 
 type ProjectImage struct {
-	Id        string
-	IdProject string
+	ID        string
+	IDProject string
 	FileName  string
 	URL       string
 	CreatedAt time.Time

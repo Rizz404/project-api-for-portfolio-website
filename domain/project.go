@@ -3,10 +3,10 @@ package domain
 import "time"
 
 type Project struct {
-	Id           string
+	ID           string
 	Name         string
 	Description  *string
-	IdCategory   string
+	IDCategory   string
 	IsDeployed   bool
 	IsMaintained bool
 	SourceCode   *string
