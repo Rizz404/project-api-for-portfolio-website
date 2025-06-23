@@ -1,5 +1,6 @@
 -- +goose up
--- * Buat function untuk trigger updated_at saat update
+-- * Anotasi untuk memberitahu goose agar tidak memecah statement ini
+-- +goose StatementBegin
 CREATE
 OR REPLACE FUNCTION trigger_set_timestamp () RETURNS TRIGGER AS $$
 BEGIN
@@ -8,5 +9,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- +goose StatementEnd
 -- +goose down
 DROP FUNCTION IF EXISTS trigger_set_timestamp ();

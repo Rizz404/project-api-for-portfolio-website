@@ -6,7 +6,7 @@ CREATE TABLE
     file_name TEXT NOT NULL,
     url TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
-    updated_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now()
   );
 
 ALTER TABLE project_images

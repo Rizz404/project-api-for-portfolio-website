@@ -10,7 +10,7 @@ CREATE TABLE
     live_demo VARCHAR(255),
     source_code VARCHAR(255),
     created_at TIMESTAMP DEFAULT now(),
-    updated_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now()
   );
 
 -- * Constraintnya

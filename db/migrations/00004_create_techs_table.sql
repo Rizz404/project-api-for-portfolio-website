@@ -6,7 +6,7 @@ CREATE TABLE
     description TEXT,
     logo_url TEXT,
     created_at TIMESTAMP DEFAULT now(),
-    updated_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now()
   );
 
 CREATE INDEX idx_techs_name ON techs (name);
