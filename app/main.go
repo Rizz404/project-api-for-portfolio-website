@@ -6,12 +6,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Rizz404/project-api-for-portfolio-website/category"
 	"github.com/Rizz404/project-api-for-portfolio-website/internal/repository/postgresql"
 	"github.com/Rizz404/project-api-for-portfolio-website/internal/repository/postgresql/sqlc"
 	"github.com/Rizz404/project-api-for-portfolio-website/internal/rest"
+	"github.com/Rizz404/project-api-for-portfolio-website/internal/rest/middleware"
+	"github.com/Rizz404/project-api-for-portfolio-website/services/auth"
+	"github.com/Rizz404/project-api-for-portfolio-website/services/category"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -43,18 +45,28 @@ func main() {
 	log.Printf("successfully connected to database")
 
 	// * DEPENDENCY INJECTION
-
 	queries := sqlc.New(dbConn)
+	// * Repo
+	authRepo := postgresql.NewUserRepository(queries)
 	categoryRepo := postgresql.NewCategoryRepository(queries)
+
+	// * Service
+	authService := auth.NewService(authRepo)
 	categoryService := category.NewService(categoryRepo)
 
 	router := chi.NewRouter()
-	router.Use(middleware.Logger)
+
+	router.Use(middleware.Cors)
+	router.Use(chiMiddleware.Logger)
 	// * Middleware untuk recover dari panic
-	router.Use(middleware.Recoverer)
+	router.Use(chiMiddleware.Recoverer)
 
 	apiRouter := chi.NewRouter()
+
+	// * Handler
+	rest.NewAuthHandler(apiRouter, authService)
 	rest.NewCategoryHandler(apiRouter, categoryService)
+
 	router.Mount("/api/v1", apiRouter)
 
 	// * SERVER

@@ -6,16 +6,38 @@ package sqlc
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
 
 type Querier interface {
+	CheckEmailExists(ctx context.Context, email string) (bool, error)
+	CheckUserExists(ctx context.Context, id uuid.UUID) (bool, error)
+	CheckUsernameExists(ctx context.Context, username string) (bool, error)
+	CountUsers(ctx context.Context) (int64, error)
 	CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error)
+	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteCategory(ctx context.Context, id uuid.UUID) error
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 	GetCategories(ctx context.Context) ([]Category, error)
 	GetCategory(ctx context.Context, id uuid.UUID) (Category, error)
+	GetUser(ctx context.Context, id uuid.UUID) (User, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
+	GetUserByUsername(ctx context.Context, username string) (User, error)
+	GetUsersCursorBackward(ctx context.Context, arg GetUsersCursorBackwardParams) ([]User, error)
+	GetUsersCursorFirst(ctx context.Context, limit int32) ([]User, error)
+	GetUsersCursorForward(ctx context.Context, arg GetUsersCursorForwardParams) ([]User, error)
+	GetUsersPaginated(ctx context.Context, arg GetUsersPaginatedParams) ([]User, error)
+	GetUsersPaginatedWithCount(ctx context.Context, arg GetUsersPaginatedWithCountParams) ([]GetUsersPaginatedWithCountRow, error)
+	SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]User, error)
+	SearchUsersByEmail(ctx context.Context, dollar_1 sql.NullString) ([]User, error)
+	SearchUsersByFullName(ctx context.Context, dollar_1 sql.NullString) ([]User, error)
+	SearchUsersByUsername(ctx context.Context, dollar_1 sql.NullString) ([]User, error)
+	SearchUsersPaginated(ctx context.Context, arg SearchUsersPaginatedParams) ([]User, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
+	UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

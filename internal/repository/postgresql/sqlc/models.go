@@ -55,3 +55,27 @@ type TechStack struct {
 	CreatedAt sql.NullTime `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
 }
+
+type User struct {
+	ID        uuid.UUID      `json:"id"`
+	Username  string         `json:"username"`
+	Email     string         `json:"email"`
+	Password  string         `json:"password"`
+	Address   sql.NullString `json:"address"`
+	FullName  sql.NullString `json:"full_name"`
+	CreatedAt sql.NullTime   `json:"created_at"`
+	UpdatedAt sql.NullTime   `json:"updated_at"`
+}
+
+type UserTranslation struct {
+	ID               uuid.UUID      `json:"id"`
+	IDUser           uuid.UUID      `json:"id_user"`
+	Bio              sql.NullString `json:"bio"`
+	AboutMe          sql.NullString `json:"about_me"`
+	AdditionalSkills []string       `json:"additional_skills"`
+	Languages        []string       `json:"languages"`
+	Quote            sql.NullString `json:"quote"`
+	LangCode         string         `json:"lang_code"`
+	CreatedAt        sql.NullTime   `json:"created_at"`
+	UpdatedAt        sql.NullTime   `json:"updated_at"`
+}
