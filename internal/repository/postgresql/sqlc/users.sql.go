@@ -89,7 +89,7 @@ INSERT INTO
 VALUES
   ($1, $2, $3, $4, $5, $6)
 RETURNING
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -118,6 +118,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Password,
 		&i.Address,
 		&i.FullName,
+		&i.IDLanguage,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -137,7 +138,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 
 const getUser = `-- name: GetUser :one
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -156,6 +157,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Password,
 		&i.Address,
 		&i.FullName,
+		&i.IDLanguage,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -164,7 +166,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -183,6 +185,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Password,
 		&i.Address,
 		&i.FullName,
+		&i.IDLanguage,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -191,7 +194,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 
 const getUserByUsername = `-- name: GetUserByUsername :one
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -210,6 +213,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.Password,
 		&i.Address,
 		&i.FullName,
+		&i.IDLanguage,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -218,7 +222,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 
 const getUsersCursorBackward = `-- name: GetUsersCursorBackward :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -250,6 +254,7 @@ func (q *Queries) GetUsersCursorBackward(ctx context.Context, arg GetUsersCursor
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -268,7 +273,7 @@ func (q *Queries) GetUsersCursorBackward(ctx context.Context, arg GetUsersCursor
 
 const getUsersCursorFirst = `-- name: GetUsersCursorFirst :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 ORDER BY
@@ -293,6 +298,7 @@ func (q *Queries) GetUsersCursorFirst(ctx context.Context, limit int32) ([]User,
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -311,7 +317,7 @@ func (q *Queries) GetUsersCursorFirst(ctx context.Context, limit int32) ([]User,
 
 const getUsersCursorForward = `-- name: GetUsersCursorForward :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -343,6 +349,7 @@ func (q *Queries) GetUsersCursorForward(ctx context.Context, arg GetUsersCursorF
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -361,7 +368,7 @@ func (q *Queries) GetUsersCursorForward(ctx context.Context, arg GetUsersCursorF
 
 const getUsersPaginated = `-- name: GetUsersPaginated :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 ORDER BY
@@ -393,6 +400,7 @@ func (q *Queries) GetUsersPaginated(ctx context.Context, arg GetUsersPaginatedPa
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -411,7 +419,7 @@ func (q *Queries) GetUsersPaginated(ctx context.Context, arg GetUsersPaginatedPa
 
 const getUsersPaginatedWithCount = `-- name: GetUsersPaginatedWithCount :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at,
+  id, username, email, password, address, full_name, id_language, created_at, updated_at,
   COUNT(*) OVER () as total_count
 FROM
   users
@@ -435,6 +443,7 @@ type GetUsersPaginatedWithCountRow struct {
 	Password   string         `json:"password"`
 	Address    sql.NullString `json:"address"`
 	FullName   sql.NullString `json:"full_name"`
+	IDLanguage uuid.NullUUID  `json:"id_language"`
 	CreatedAt  sql.NullTime   `json:"created_at"`
 	UpdatedAt  sql.NullTime   `json:"updated_at"`
 	TotalCount int64          `json:"total_count"`
@@ -456,6 +465,7 @@ func (q *Queries) GetUsersPaginatedWithCount(ctx context.Context, arg GetUsersPa
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.TotalCount,
@@ -475,7 +485,7 @@ func (q *Queries) GetUsersPaginatedWithCount(ctx context.Context, arg GetUsersPa
 
 const searchUsers = `-- name: SearchUsers :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -510,6 +520,7 @@ func (q *Queries) SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]U
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -528,7 +539,7 @@ func (q *Queries) SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]U
 
 const searchUsersByEmail = `-- name: SearchUsersByEmail :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -557,6 +568,7 @@ func (q *Queries) SearchUsersByEmail(ctx context.Context, dollar_1 sql.NullStrin
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -575,7 +587,7 @@ func (q *Queries) SearchUsersByEmail(ctx context.Context, dollar_1 sql.NullStrin
 
 const searchUsersByFullName = `-- name: SearchUsersByFullName :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -604,6 +616,7 @@ func (q *Queries) SearchUsersByFullName(ctx context.Context, dollar_1 sql.NullSt
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -622,7 +635,7 @@ func (q *Queries) SearchUsersByFullName(ctx context.Context, dollar_1 sql.NullSt
 
 const searchUsersByUsername = `-- name: SearchUsersByUsername :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -651,6 +664,7 @@ func (q *Queries) SearchUsersByUsername(ctx context.Context, dollar_1 sql.NullSt
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -669,7 +683,7 @@ func (q *Queries) SearchUsersByUsername(ctx context.Context, dollar_1 sql.NullSt
 
 const searchUsersPaginated = `-- name: SearchUsersPaginated :many
 SELECT
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -714,6 +728,7 @@ func (q *Queries) SearchUsersPaginated(ctx context.Context, arg SearchUsersPagin
 			&i.Password,
 			&i.Address,
 			&i.FullName,
+			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -741,7 +756,7 @@ SET
 WHERE
   id = $1
 RETURNING
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -770,6 +785,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Password,
 		&i.Address,
 		&i.FullName,
+		&i.IDLanguage,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -784,7 +800,7 @@ SET
 WHERE
   id = $1
 RETURNING
-  id, username, email, password, address, full_name, created_at, updated_at
+  id, username, email, password, address, full_name, id_language, created_at, updated_at
 `
 
 type UpdateUserProfileParams struct {
@@ -803,6 +819,7 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfilePa
 		&i.Password,
 		&i.Address,
 		&i.FullName,
+		&i.IDLanguage,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

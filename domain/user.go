@@ -2,11 +2,19 @@ package domain
 
 import "time"
 
+type Role string
+
+const (
+	RoleAdmin Role = "admin"
+	RoleUser  Role = "user"
+)
+
 type User struct {
 	ID        string    `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
+	Role      Role      `json:"role"`
 	Address   *string   `json:"address,omitempty"`
 	FullName  *string   `json:"full_name,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
@@ -30,6 +38,7 @@ type LoginResponse struct {
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	Password     string    `json:"password"`
+	Role         Role      `json:"role"`
 	Address      *string   `json:"address,omitempty"`
 	FullName     *string   `json:"full_name,omitempty"`
 	AccessToken  string    `json:"access_token"`
@@ -48,11 +57,12 @@ type UpdateUserPasswordPayload struct {
 	NewPassword string `json:"new_password" form:"new_password" validate:"required,min=8,max=100"`
 }
 
-// * User
+// * User (biasanya untuk operasi oleh Admin)
 type CreateUserPayload struct {
 	Username string  `json:"username" form:"username" validate:"required,min=3,max=30,alphanum"`
 	Email    string  `json:"email" form:"email" validate:"required,email"`
 	Password string  `json:"password" form:"password" validate:"required,min=8,max=100"`
+	Role     *Role   `json:"role,omitempty" form:"role" validate:"omitempty,oneof=admin user"`
 	FullName *string `json:"full_name,omitempty" form:"full_name" validate:"omitempty,min=2,max=100"`
 	Address  *string `json:"address,omitempty" form:"address" validate:"omitempty,min=5,max=255"`
 }
@@ -61,6 +71,7 @@ type UpdateUserPayload struct {
 	Username *string `json:"username,omitempty" form:"username" validate:"omitempty,min=3,max=30,alphanum"`
 	Email    *string `json:"email,omitempty" form:"email" validate:"omitempty,email"`
 	Password *string `json:"password,omitempty" form:"password" validate:"omitempty,min=8,max=100"`
+	Role     *Role   `json:"role,omitempty" form:"role" validate:"omitempty,oneof=admin user"`
 	FullName *string `json:"full_name,omitempty" form:"full_name" validate:"omitempty,min=2,max=100"`
 	Address  *string `json:"address,omitempty" form:"address" validate:"omitempty,min=5,max=255"`
 }

@@ -18,11 +18,17 @@ type Category struct {
 	UpdatedAt   sql.NullTime   `json:"updated_at"`
 }
 
+type Language struct {
+	ID        uuid.UUID    `json:"id"`
+	Name      string       `json:"name"`
+	LangCode  string       `json:"lang_code"`
+	CreatedAt sql.NullTime `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
+}
+
 type Project struct {
 	ID           uuid.UUID      `json:"id"`
-	Name         string         `json:"name"`
 	IDCategory   uuid.UUID      `json:"id_category"`
-	Description  sql.NullString `json:"description"`
 	IsDeployed   bool           `json:"is_deployed"`
 	IsMaintained bool           `json:"is_maintained"`
 	LiveDemo     sql.NullString `json:"live_demo"`
@@ -38,6 +44,16 @@ type ProjectImage struct {
 	Url       string       `json:"url"`
 	CreatedAt sql.NullTime `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+}
+
+type ProjectTranslation struct {
+	ID          uuid.UUID      `json:"id"`
+	IDProject   uuid.UUID      `json:"id_project"`
+	IDLanguage  uuid.UUID      `json:"id_language"`
+	Name        string         `json:"name"`
+	Description sql.NullString `json:"description"`
+	CreatedAt   sql.NullTime   `json:"created_at"`
+	UpdatedAt   sql.NullTime   `json:"updated_at"`
 }
 
 type Tech struct {
@@ -57,25 +73,26 @@ type TechStack struct {
 }
 
 type User struct {
-	ID        uuid.UUID      `json:"id"`
-	Username  string         `json:"username"`
-	Email     string         `json:"email"`
-	Password  string         `json:"password"`
-	Address   sql.NullString `json:"address"`
-	FullName  sql.NullString `json:"full_name"`
-	CreatedAt sql.NullTime   `json:"created_at"`
-	UpdatedAt sql.NullTime   `json:"updated_at"`
+	ID         uuid.UUID      `json:"id"`
+	Username   string         `json:"username"`
+	Email      string         `json:"email"`
+	Password   string         `json:"password"`
+	Address    sql.NullString `json:"address"`
+	FullName   sql.NullString `json:"full_name"`
+	IDLanguage uuid.NullUUID  `json:"id_language"`
+	CreatedAt  sql.NullTime   `json:"created_at"`
+	UpdatedAt  sql.NullTime   `json:"updated_at"`
 }
 
 type UserTranslation struct {
 	ID               uuid.UUID      `json:"id"`
 	IDUser           uuid.UUID      `json:"id_user"`
+	IDLanguage       uuid.UUID      `json:"id_language"`
 	Bio              sql.NullString `json:"bio"`
 	AboutMe          sql.NullString `json:"about_me"`
 	AdditionalSkills []string       `json:"additional_skills"`
 	Languages        []string       `json:"languages"`
 	Quote            sql.NullString `json:"quote"`
-	LangCode         string         `json:"lang_code"`
 	CreatedAt        sql.NullTime   `json:"created_at"`
 	UpdatedAt        sql.NullTime   `json:"updated_at"`
 }
