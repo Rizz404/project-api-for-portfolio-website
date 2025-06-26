@@ -5,6 +5,7 @@ go 1.23.4
 require github.com/jackc/pgx/v5 v5.7.5
 
 require (
+	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-chi/chi/v5 v5.2.2 // indirect
 	github.com/go-chi/cors v1.2.1 // indirect

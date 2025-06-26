@@ -52,13 +52,11 @@ func NewService(r Repository) *Service {
 
 // *===========================CREATE===========================*
 func (s *Service) CreateUser(ctx context.Context, payload *domain.CreateUserPayload) (domain.User, error) {
-	// Hash password
 	hashedPassword, err := utils.HashPassword(payload.Password)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 
-	// Create user params
 	params := domain.User{
 		ID:       ulid.Make().String(),
 		Username: payload.Username,
@@ -68,23 +66,23 @@ func (s *Service) CreateUser(ctx context.Context, payload *domain.CreateUserPayl
 
 	usernameExist, err := s.repo.CheckUsernameExists(ctx, params.Username)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 	if usernameExist {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrConflict("Username already exists")
 	}
 
 	emailExist, err := s.repo.CheckEmailExists(ctx, params.Email)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 	if emailExist {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrConflict("Email already exists")
 	}
 
 	createdUser, err := s.repo.CreateUser(ctx, &params)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 
 	createdUser.Password = ""
@@ -95,7 +93,7 @@ func (s *Service) CreateUser(ctx context.Context, payload *domain.CreateUserPayl
 func (s *Service) GetUsersPaginated(ctx context.Context, limit int32, offset int32) ([]domain.User, error) {
 	users, err := s.repo.GetUsersPaginated(ctx, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -108,7 +106,7 @@ func (s *Service) GetUsersPaginated(ctx context.Context, limit int32, offset int
 func (s *Service) GetUsersPaginatedWithCount(ctx context.Context, limit int32, offset int32) ([]domain.User, int64, error) {
 	users, count, err := s.repo.GetUsersPaginatedWithCount(ctx, limit, offset)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -121,7 +119,7 @@ func (s *Service) GetUsersPaginatedWithCount(ctx context.Context, limit int32, o
 func (s *Service) GetUsersCursorForward(ctx context.Context, cursor time.Time, limit int32) ([]domain.User, error) {
 	users, err := s.repo.GetUsersCursorForward(ctx, cursor, limit)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -134,7 +132,7 @@ func (s *Service) GetUsersCursorForward(ctx context.Context, cursor time.Time, l
 func (s *Service) GetUsersCursorBackward(ctx context.Context, cursor time.Time, limit int32) ([]domain.User, error) {
 	users, err := s.repo.GetUsersCursorBackward(ctx, cursor, limit)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -147,7 +145,7 @@ func (s *Service) GetUsersCursorBackward(ctx context.Context, cursor time.Time, 
 func (s *Service) GetUsersCursorFirst(ctx context.Context, limit int32) ([]domain.User, error) {
 	users, err := s.repo.GetUsersCursorFirst(ctx, limit)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -160,7 +158,7 @@ func (s *Service) GetUsersCursorFirst(ctx context.Context, limit int32) ([]domai
 func (s *Service) SearchUsers(ctx context.Context, searchTerm string) ([]domain.User, error) {
 	users, err := s.repo.SearchUsers(ctx, searchTerm)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -173,7 +171,7 @@ func (s *Service) SearchUsers(ctx context.Context, searchTerm string) ([]domain.
 func (s *Service) SearchUsersPaginated(ctx context.Context, searchTerm string, limit int32, offset int32) ([]domain.User, error) {
 	users, err := s.repo.SearchUsersPaginated(ctx, searchTerm, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -186,7 +184,7 @@ func (s *Service) SearchUsersPaginated(ctx context.Context, searchTerm string, l
 func (s *Service) SearchUsersByUsername(ctx context.Context, username string) ([]domain.User, error) {
 	users, err := s.repo.SearchUsersByUsername(ctx, username)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -199,7 +197,7 @@ func (s *Service) SearchUsersByUsername(ctx context.Context, username string) ([
 func (s *Service) SearchUsersByEmail(ctx context.Context, email string) ([]domain.User, error) {
 	users, err := s.repo.SearchUsersByEmail(ctx, email)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -212,7 +210,7 @@ func (s *Service) SearchUsersByEmail(ctx context.Context, email string) ([]domai
 func (s *Service) SearchUsersByFullName(ctx context.Context, fullName string) ([]domain.User, error) {
 	users, err := s.repo.SearchUsersByFullName(ctx, fullName)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternal(err)
 	}
 
 	for i := range users {
@@ -226,7 +224,7 @@ func (s *Service) SearchUsersByFullName(ctx context.Context, fullName string) ([
 func (s *Service) GetUser(ctx context.Context, id string) (domain.User, error) {
 	user, err := s.repo.GetUser(ctx, id)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 
 	user.Password = ""
@@ -236,7 +234,7 @@ func (s *Service) GetUser(ctx context.Context, id string) (domain.User, error) {
 func (s *Service) GetUserByUsername(ctx context.Context, username string) (domain.User, error) {
 	user, err := s.repo.GetUserByUsername(ctx, username)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 
 	user.Password = ""
@@ -246,7 +244,7 @@ func (s *Service) GetUserByUsername(ctx context.Context, username string) (domai
 func (s *Service) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
 	user, err := s.repo.GetUserByEmail(ctx, email)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 
 	user.Password = ""
@@ -256,7 +254,7 @@ func (s *Service) GetUserByEmail(ctx context.Context, email string) (domain.User
 func (s *Service) CheckUserExists(ctx context.Context, id string) (bool, error) {
 	exists, err := s.repo.CheckUserExists(ctx, id)
 	if err != nil {
-		return false, err
+		return false, domain.ErrInternal(err)
 	}
 	return exists, nil
 }
@@ -264,7 +262,7 @@ func (s *Service) CheckUserExists(ctx context.Context, id string) (bool, error) 
 func (s *Service) CheckEmailExists(ctx context.Context, email string) (bool, error) {
 	exists, err := s.repo.CheckEmailExists(ctx, email)
 	if err != nil {
-		return false, err
+		return false, domain.ErrInternal(err)
 	}
 	return exists, nil
 }
@@ -272,7 +270,7 @@ func (s *Service) CheckEmailExists(ctx context.Context, email string) (bool, err
 func (s *Service) CheckUsernameExists(ctx context.Context, username string) (bool, error) {
 	exists, err := s.repo.CheckUsernameExists(ctx, username)
 	if err != nil {
-		return false, err
+		return false, domain.ErrInternal(err)
 	}
 	return exists, nil
 }
@@ -280,7 +278,7 @@ func (s *Service) CheckUsernameExists(ctx context.Context, username string) (boo
 func (s *Service) CountUsers(ctx context.Context) (int64, error) {
 	count, err := s.repo.CountUsers(ctx)
 	if err != nil {
-		return 0, err
+		return 0, domain.ErrInternal(err)
 	}
 	return count, nil
 }
@@ -289,16 +287,16 @@ func (s *Service) CountUsers(ctx context.Context) (int64, error) {
 func (s *Service) UpdateUser(ctx context.Context, payload *domain.User) (domain.User, error) {
 	exists, err := s.repo.CheckUserExists(ctx, payload.ID)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 	if !exists {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrNotFound("User")
 	}
 
 	if payload.Password != "" {
 		hashedPassword, err := utils.HashPassword(payload.Password)
 		if err != nil {
-			return domain.User{}, err
+			return domain.User{}, domain.ErrInternal(err)
 		}
 		payload.Password = hashedPassword
 	}
@@ -306,15 +304,15 @@ func (s *Service) UpdateUser(ctx context.Context, payload *domain.User) (domain.
 	if payload.Username != "" {
 		usernameExists, err := s.repo.CheckUsernameExists(ctx, payload.Username)
 		if err != nil {
-			return domain.User{}, err
+			return domain.User{}, domain.ErrInternal(err)
 		}
 		if usernameExists {
 			currentUser, err := s.repo.GetUser(ctx, payload.ID)
 			if err != nil {
-				return domain.User{}, err
+				return domain.User{}, domain.ErrInternal(err)
 			}
 			if currentUser.Username != payload.Username {
-				return domain.User{}, err
+				return domain.User{}, domain.ErrConflict("Username already exists")
 			}
 		}
 	}
@@ -322,22 +320,22 @@ func (s *Service) UpdateUser(ctx context.Context, payload *domain.User) (domain.
 	if payload.Email != "" {
 		emailExists, err := s.repo.CheckEmailExists(ctx, payload.Email)
 		if err != nil {
-			return domain.User{}, err
+			return domain.User{}, domain.ErrInternal(err)
 		}
 		if emailExists {
 			currentUser, err := s.repo.GetUser(ctx, payload.ID)
 			if err != nil {
-				return domain.User{}, err
+				return domain.User{}, domain.ErrInternal(err)
 			}
 			if currentUser.Email != payload.Email {
-				return domain.User{}, err
+				return domain.User{}, domain.ErrConflict("Email already exists")
 			}
 		}
 	}
 
 	updatedUser, err := s.repo.UpdateUser(ctx, payload)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 
 	updatedUser.Password = ""
@@ -347,15 +345,15 @@ func (s *Service) UpdateUser(ctx context.Context, payload *domain.User) (domain.
 func (s *Service) UpdateUserProfile(ctx context.Context, payload *domain.User) (domain.User, error) {
 	exists, err := s.repo.CheckUserExists(ctx, payload.ID)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 	if !exists {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrNotFound("User")
 	}
 
 	updatedUser, err := s.repo.UpdateUserProfile(ctx, payload)
 	if err != nil {
-		return domain.User{}, err
+		return domain.User{}, domain.ErrInternal(err)
 	}
 
 	updatedUser.Password = ""
@@ -366,15 +364,15 @@ func (s *Service) UpdateUserProfile(ctx context.Context, payload *domain.User) (
 func (s *Service) DeleteUser(ctx context.Context, id string) error {
 	exists, err := s.repo.CheckUserExists(ctx, id)
 	if err != nil {
-		return err
+		return domain.ErrInternal(err)
 	}
 	if !exists {
-		return err
+		return domain.ErrNotFound("User")
 	}
 
 	err = s.repo.DeleteUser(ctx, id)
 	if err != nil {
-		return err
+		return domain.ErrInternal(err)
 	}
 
 	return nil

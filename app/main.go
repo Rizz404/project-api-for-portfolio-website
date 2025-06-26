@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,8 @@ import (
 	"github.com/Rizz404/project-api-for-portfolio-website/internal/rest/middleware"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/auth"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/category"
+	"github.com/Rizz404/project-api-for-portfolio-website/services/user"
+	"github.com/common-nighthawk/go-figure"
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
@@ -23,6 +26,24 @@ func init() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+}
+
+// * Kalo di js namanya figlet
+// * Handler untuk root ("/")
+func handleRoot(w http.ResponseWriter, r *http.Request) {
+	myFigure := figure.NewFigure("API is Running", "standard", true)
+	// * Penting untuk set Content-Type ke text/plain agar format ASCII art tidak rusak di browser
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, myFigure.String())
+}
+
+// * Handler untuk 404 Not Found
+func handleNotFound(w http.ResponseWriter, r *http.Request) {
+	myFigure := figure.NewFigure("404 Not Found", "standard", true)
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusNotFound)
+	fmt.Fprint(w, myFigure.String())
 }
 
 func main() {
@@ -46,12 +67,15 @@ func main() {
 
 	// * DEPENDENCY INJECTION
 	queries := sqlc.New(dbConn)
+
 	// * Repo
 	authRepo := postgresql.NewUserRepository(queries)
+	userRepo := postgresql.NewUserRepository(queries)
 	categoryRepo := postgresql.NewCategoryRepository(queries)
 
 	// * Service
 	authService := auth.NewService(authRepo)
+	userService := user.NewService(userRepo)
 	categoryService := category.NewService(categoryRepo)
 
 	router := chi.NewRouter()
@@ -61,10 +85,14 @@ func main() {
 	// * Middleware untuk recover dari panic
 	router.Use(chiMiddleware.Recoverer)
 
+	router.Get("/", handleRoot)
+	router.NotFound(handleNotFound)
+
 	apiRouter := chi.NewRouter()
 
 	// * Handler
 	rest.NewAuthHandler(apiRouter, authService)
+	rest.NewUserHandler(apiRouter, userService)
 	rest.NewCategoryHandler(apiRouter, categoryService)
 
 	router.Mount("/api/v1", apiRouter)

@@ -2,8 +2,11 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
 	"math"
 	"net/http"
+
+	"github.com/Rizz404/project-api-for-portfolio-website/domain"
 )
 
 // * Buat yang offset base pagination
@@ -90,6 +93,16 @@ func Error(w http.ResponseWriter, code int, message string, errorDetails any) {
 		Message: message,
 		Error:   errorDetails,
 	})
+}
+
+// * Otomatis handle error berdasarkan domain error (abstraksi terus sampe mampus)
+func HandleError(w http.ResponseWriter, err error) {
+	var appErr *domain.AppError
+	if errors.As(err, &appErr) {
+		Error(w, appErr.Code, appErr.Error(), nil)
+	} else {
+		Error(w, http.StatusInternalServerError, "An unexpected error occurred", nil)
+	}
 }
 
 // * Fungsi internal untuk proses encoding JSON dan penulisan header.
