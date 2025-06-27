@@ -1,8 +1,16 @@
 -- name: CreateUser :one
 INSERT INTO
-  users (id, username, email, password, address, full_name)
+  users (
+    id,
+    username,
+    email,
+    password,
+    role,
+    address,
+    full_name
+  )
 VALUES
-  ($1, $2, $3, $4, $5, $6)
+  ($1, $2, $3, $4, $5, $6, $7)
 RETURNING
   *;
 
@@ -18,48 +26,11 @@ LIMIT
 OFFSET
   $2;
 
--- name: GetUsersPaginatedWithCount :many
-SELECT
-  *,
-  COUNT(*) OVER () as total_count
-FROM
-  users
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
-OFFSET
-  $2;
-
 -- name: CountUsers :one
 SELECT
   COUNT(*) as total
 FROM
   users;
-
--- name: GetUsersCursorForward :many
-SELECT
-  *
-FROM
-  users
-WHERE
-  created_at < $1
-ORDER BY
-  created_at DESC
-LIMIT
-  $2;
-
--- name: GetUsersCursorBackward :many
-SELECT
-  *
-FROM
-  users
-WHERE
-  created_at > $1
-ORDER BY
-  created_at ASC
-LIMIT
-  $2;
 
 -- name: GetUsersCursorFirst :many
 SELECT
@@ -226,8 +197,9 @@ SET
   username = COALESCE($2, username),
   email = COALESCE($3, email),
   password = COALESCE($4, password),
-  address = COALESCE($5, address),
-  full_name = COALESCE($6, full_name)
+  role = COALESCE($5, role),
+  address = COALESCE($6, address),
+  full_name = COALESCE($7, full_name)
 WHERE
   id = $1
 RETURNING

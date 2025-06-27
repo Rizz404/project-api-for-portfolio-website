@@ -15,6 +15,7 @@ import (
 	"github.com/Rizz404/project-api-for-portfolio-website/services/category"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/language"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/user"
+	usertranslation "github.com/Rizz404/project-api-for-portfolio-website/services/user-translation"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
@@ -73,12 +74,14 @@ func main() {
 	authRepo := postgresql.NewUserRepository(queries)
 	languageRepo := postgresql.NewLanguageRepository(queries)
 	userRepo := postgresql.NewUserRepository(queries)
+	userTranslationRepo := postgresql.NewUserTranslationRepository(queries)
 	categoryRepo := postgresql.NewCategoryRepository(queries)
 
 	// * Service
 	authService := auth.NewService(authRepo)
 	languageService := language.NewService(languageRepo)
 	userService := user.NewService(userRepo)
+	userTranslationService := usertranslation.NewService(userTranslationRepo)
 	categoryService := category.NewService(categoryRepo)
 
 	router := chi.NewRouter()
@@ -97,6 +100,7 @@ func main() {
 	rest.NewAuthHandler(apiRouter, authService)
 	rest.NewLanguageHandler(apiRouter, languageService)
 	rest.NewUserHandler(apiRouter, userService)
+	rest.NewUserTranslationHandler(apiRouter, userTranslationService)
 	rest.NewCategoryHandler(apiRouter, categoryService)
 
 	router.Mount("/api/v1", apiRouter)

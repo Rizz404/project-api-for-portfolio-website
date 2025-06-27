@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"time"
 
 	"github.com/Rizz404/project-api-for-portfolio-website/domain"
 	"github.com/Rizz404/project-api-for-portfolio-website/internal/utils"
@@ -15,9 +14,6 @@ type Repository interface {
 
 	// * READ (MANY)
 	GetUsersPaginated(ctx context.Context, limit int32, offset int32) ([]domain.User, error)
-	GetUsersPaginatedWithCount(ctx context.Context, limit int32, offset int32) ([]domain.User, int64, error)
-	GetUsersCursorForward(ctx context.Context, cursor time.Time, limit int32) ([]domain.User, error)
-	GetUsersCursorBackward(ctx context.Context, cursor time.Time, limit int32) ([]domain.User, error)
 	GetUsersCursorFirst(ctx context.Context, limit int32) ([]domain.User, error)
 	SearchUsers(ctx context.Context, searchTerm string) ([]domain.User, error)
 	SearchUsersPaginated(ctx context.Context, searchTerm string, limit int32, offset int32) ([]domain.User, error)
@@ -92,45 +88,6 @@ func (s *Service) CreateUser(ctx context.Context, payload *domain.CreateUserPayl
 // *===========================READ (MANY)===========================*
 func (s *Service) GetUsersPaginated(ctx context.Context, limit int32, offset int32) ([]domain.User, error) {
 	users, err := s.repo.GetUsersPaginated(ctx, limit, offset)
-	if err != nil {
-		return nil, domain.ErrInternal(err)
-	}
-
-	for i := range users {
-		users[i].Password = ""
-	}
-
-	return users, nil
-}
-
-func (s *Service) GetUsersPaginatedWithCount(ctx context.Context, limit int32, offset int32) ([]domain.User, int64, error) {
-	users, count, err := s.repo.GetUsersPaginatedWithCount(ctx, limit, offset)
-	if err != nil {
-		return nil, 0, domain.ErrInternal(err)
-	}
-
-	for i := range users {
-		users[i].Password = ""
-	}
-
-	return users, count, nil
-}
-
-func (s *Service) GetUsersCursorForward(ctx context.Context, cursor time.Time, limit int32) ([]domain.User, error) {
-	users, err := s.repo.GetUsersCursorForward(ctx, cursor, limit)
-	if err != nil {
-		return nil, domain.ErrInternal(err)
-	}
-
-	for i := range users {
-		users[i].Password = ""
-	}
-
-	return users, nil
-}
-
-func (s *Service) GetUsersCursorBackward(ctx context.Context, cursor time.Time, limit int32) ([]domain.User, error) {
-	users, err := s.repo.GetUsersCursorBackward(ctx, cursor, limit)
 	if err != nil {
 		return nil, domain.ErrInternal(err)
 	}

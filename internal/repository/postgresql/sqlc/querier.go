@@ -17,15 +17,19 @@ type Querier interface {
 	CheckLanguageExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckNameExists(ctx context.Context, name string) (bool, error)
 	CheckUserExists(ctx context.Context, id uuid.UUID) (bool, error)
+	CheckUserTranslationExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckUsernameExists(ctx context.Context, username string) (bool, error)
 	CountLanguages(ctx context.Context) (int64, error)
+	CountUserTranslations(ctx context.Context) (int64, error)
 	CountUsers(ctx context.Context) (int64, error)
 	CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error)
 	CreateLanguage(ctx context.Context, arg CreateLanguageParams) (Language, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateUserTranslation(ctx context.Context, arg CreateUserTranslationParams) (UserTranslation, error)
 	DeleteCategory(ctx context.Context, id uuid.UUID) error
 	DeleteLanguage(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
+	DeleteUserTranslation(ctx context.Context, id uuid.UUID) error
 	GetCategories(ctx context.Context) ([]Category, error)
 	GetCategory(ctx context.Context, id uuid.UUID) (Category, error)
 	GetLanguage(ctx context.Context, id uuid.UUID) (Language, error)
@@ -36,11 +40,15 @@ type Querier interface {
 	GetUser(ctx context.Context, id uuid.UUID) (User, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
-	GetUsersCursorBackward(ctx context.Context, arg GetUsersCursorBackwardParams) ([]User, error)
+	GetUserTranslation(ctx context.Context, id uuid.UUID) (UserTranslation, error)
+	GetUserTranslationByUserIDAndLangCode(ctx context.Context, arg GetUserTranslationByUserIDAndLangCodeParams) (UserTranslation, error)
+	GetUserTranslationByUserIDAndLangID(ctx context.Context, arg GetUserTranslationByUserIDAndLangIDParams) (UserTranslation, error)
+	GetUserTranslationByUserIDAndLangName(ctx context.Context, arg GetUserTranslationByUserIDAndLangNameParams) (UserTranslation, error)
+	GetUserTranslationsByUserIDPaginated(ctx context.Context, arg GetUserTranslationsByUserIDPaginatedParams) ([]UserTranslation, error)
+	GetUserTranslationsCursorFirst(ctx context.Context, limit int32) ([]UserTranslation, error)
+	GetUserTranslationsPaginated(ctx context.Context, arg GetUserTranslationsPaginatedParams) ([]UserTranslation, error)
 	GetUsersCursorFirst(ctx context.Context, limit int32) ([]User, error)
-	GetUsersCursorForward(ctx context.Context, arg GetUsersCursorForwardParams) ([]User, error)
 	GetUsersPaginated(ctx context.Context, arg GetUsersPaginatedParams) ([]User, error)
-	GetUsersPaginatedWithCount(ctx context.Context, arg GetUsersPaginatedWithCountParams) ([]GetUsersPaginatedWithCountRow, error)
 	SearchLanguages(ctx context.Context, dollar_1 sql.NullString) ([]Language, error)
 	SearchLanguagesByLangCode(ctx context.Context, dollar_1 sql.NullString) ([]Language, error)
 	SearchLanguagesByName(ctx context.Context, dollar_1 sql.NullString) ([]Language, error)
@@ -54,6 +62,7 @@ type Querier interface {
 	UpdateLanguage(ctx context.Context, arg UpdateLanguageParams) (Language, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (User, error)
+	UpdateUserTranslation(ctx context.Context, arg UpdateUserTranslationParams) (UserTranslation, error)
 }
 
 var _ Querier = (*Queries)(nil)

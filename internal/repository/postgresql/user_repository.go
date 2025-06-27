@@ -3,7 +3,6 @@ package postgresql
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/Rizz404/project-api-for-portfolio-website/domain"
 	"github.com/Rizz404/project-api-for-portfolio-website/internal/repository/postgresql/sqlc"
@@ -33,6 +32,7 @@ func (r *postgresqlUserRepository) CreateUser(ctx context.Context, payload *doma
 		Username: payload.Username,
 		Email:    payload.Email,
 		Password: payload.Password,
+		Role:     sqlc.UserRole(payload.Role),
 	}
 
 	if payload.Address != nil {
@@ -60,65 +60,6 @@ func (r *postgresqlUserRepository) GetUsersPaginated(ctx context.Context, limit 
 		return nil, err
 	}
 	return toDomainUsers(sqlcUsers), nil
-}
-
-func (r *postgresqlUserRepository) GetUsersPaginatedWithCount(ctx context.Context, limit int32, offset int32) ([]domain.User, int64, error) {
-	rows, err := r.queries.GetUsersPaginatedWithCount(ctx, sqlc.GetUsersPaginatedWithCountParams{
-		Limit:  limit,
-		Offset: offset,
-	})
-	if err != nil {
-		return nil, 0, err
-	}
-
-	if len(rows) == 0 {
-		return []domain.User{}, 0, nil
-	}
-
-	users := make([]domain.User, len(rows))
-	for i, row := range rows {
-		sqlcUser := sqlc.User{
-			ID:        row.ID,
-			Username:  row.Username,
-			Email:     row.Email,
-			Password:  row.Password,
-			FullName:  row.FullName,
-			Address:   row.Address,
-			CreatedAt: row.CreatedAt,
-			UpdatedAt: row.UpdatedAt,
-		}
-		users[i] = toDomainUser(sqlcUser)
-	}
-
-	totalCount := rows[0].TotalCount
-	return users, totalCount, nil
-}
-
-func (r *postgresqlUserRepository) GetUsersCursorForward(ctx context.Context, cursor time.Time, limit int32) ([]domain.User, error) {
-	sqlcUsers, err := r.queries.GetUsersCursorForward(ctx, sqlc.GetUsersCursorForwardParams{
-		CreatedAt: sql.NullTime{Time: cursor, Valid: true},
-		Limit:     limit,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return toDomainUsers(sqlcUsers), nil
-}
-
-func (r *postgresqlUserRepository) GetUsersCursorBackward(ctx context.Context, cursor time.Time, limit int32) ([]domain.User, error) {
-	sqlcUsers, err := r.queries.GetUsersCursorBackward(ctx, sqlc.GetUsersCursorBackwardParams{
-		CreatedAt: sql.NullTime{Time: cursor, Valid: true},
-		Limit:     limit,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	domainUsers := toDomainUsers(sqlcUsers)
-	for i, j := 0, len(domainUsers)-1; i < j; i, j = i+1, j-1 {
-		domainUsers[i], domainUsers[j] = domainUsers[j], domainUsers[i]
-	}
-	return domainUsers, nil
 }
 
 func (r *postgresqlUserRepository) GetUsersCursorFirst(ctx context.Context, limit int32) ([]domain.User, error) {
@@ -234,6 +175,7 @@ func (r *postgresqlUserRepository) UpdateUser(ctx context.Context, payload *doma
 		Username: payload.Username,
 		Email:    payload.Email,
 		Password: payload.Password,
+		Role:     sqlc.UserRole(payload.Role),
 	}
 
 	if payload.Address != nil {
@@ -303,6 +245,7 @@ func toDomainUser(q sqlc.User) domain.User {
 		Username:  q.Username,
 		Email:     q.Email,
 		Password:  q.Password,
+		Role:      domain.Role(q.Role),
 		FullName:  domainFullName,
 		Address:   domainAddress,
 		CreatedAt: q.CreatedAt.Time,

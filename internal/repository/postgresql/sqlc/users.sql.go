@@ -85,11 +85,19 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO
-  users (id, username, email, password, address, full_name)
+  users (
+    id,
+    username,
+    email,
+    password,
+    role,
+    address,
+    full_name
+  )
 VALUES
-  ($1, $2, $3, $4, $5, $6)
+  ($1, $2, $3, $4, $5, $6, $7)
 RETURNING
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -97,6 +105,7 @@ type CreateUserParams struct {
 	Username string         `json:"username"`
 	Email    string         `json:"email"`
 	Password string         `json:"password"`
+	Role     UserRole       `json:"role"`
 	Address  sql.NullString `json:"address"`
 	FullName sql.NullString `json:"full_name"`
 }
@@ -107,6 +116,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Username,
 		arg.Email,
 		arg.Password,
+		arg.Role,
 		arg.Address,
 		arg.FullName,
 	)
@@ -116,6 +126,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Role,
 		&i.Address,
 		&i.FullName,
 		&i.IDLanguage,
@@ -138,7 +149,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 
 const getUser = `-- name: GetUser :one
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -155,6 +166,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Role,
 		&i.Address,
 		&i.FullName,
 		&i.IDLanguage,
@@ -166,7 +178,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -183,6 +195,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Role,
 		&i.Address,
 		&i.FullName,
 		&i.IDLanguage,
@@ -194,7 +207,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 
 const getUserByUsername = `-- name: GetUserByUsername :one
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -211,6 +224,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Role,
 		&i.Address,
 		&i.FullName,
 		&i.IDLanguage,
@@ -220,60 +234,9 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 	return i, err
 }
 
-const getUsersCursorBackward = `-- name: GetUsersCursorBackward :many
-SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  created_at > $1
-ORDER BY
-  created_at ASC
-LIMIT
-  $2
-`
-
-type GetUsersCursorBackwardParams struct {
-	CreatedAt sql.NullTime `json:"created_at"`
-	Limit     int32        `json:"limit"`
-}
-
-func (q *Queries) GetUsersCursorBackward(ctx context.Context, arg GetUsersCursorBackwardParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersCursorBackward, arg.CreatedAt, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []User{}
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Username,
-			&i.Email,
-			&i.Password,
-			&i.Address,
-			&i.FullName,
-			&i.IDLanguage,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getUsersCursorFirst = `-- name: GetUsersCursorFirst :many
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 ORDER BY
@@ -296,57 +259,7 @@ func (q *Queries) GetUsersCursorFirst(ctx context.Context, limit int32) ([]User,
 			&i.Username,
 			&i.Email,
 			&i.Password,
-			&i.Address,
-			&i.FullName,
-			&i.IDLanguage,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getUsersCursorForward = `-- name: GetUsersCursorForward :many
-SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  created_at < $1
-ORDER BY
-  created_at DESC
-LIMIT
-  $2
-`
-
-type GetUsersCursorForwardParams struct {
-	CreatedAt sql.NullTime `json:"created_at"`
-	Limit     int32        `json:"limit"`
-}
-
-func (q *Queries) GetUsersCursorForward(ctx context.Context, arg GetUsersCursorForwardParams) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersCursorForward, arg.CreatedAt, arg.Limit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []User{}
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Username,
-			&i.Email,
-			&i.Password,
+			&i.Role,
 			&i.Address,
 			&i.FullName,
 			&i.IDLanguage,
@@ -368,7 +281,7 @@ func (q *Queries) GetUsersCursorForward(ctx context.Context, arg GetUsersCursorF
 
 const getUsersPaginated = `-- name: GetUsersPaginated :many
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 ORDER BY
@@ -398,77 +311,12 @@ func (q *Queries) GetUsersPaginated(ctx context.Context, arg GetUsersPaginatedPa
 			&i.Username,
 			&i.Email,
 			&i.Password,
+			&i.Role,
 			&i.Address,
 			&i.FullName,
 			&i.IDLanguage,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getUsersPaginatedWithCount = `-- name: GetUsersPaginatedWithCount :many
-SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at,
-  COUNT(*) OVER () as total_count
-FROM
-  users
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
-OFFSET
-  $2
-`
-
-type GetUsersPaginatedWithCountParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-type GetUsersPaginatedWithCountRow struct {
-	ID         uuid.UUID      `json:"id"`
-	Username   string         `json:"username"`
-	Email      string         `json:"email"`
-	Password   string         `json:"password"`
-	Address    sql.NullString `json:"address"`
-	FullName   sql.NullString `json:"full_name"`
-	IDLanguage uuid.NullUUID  `json:"id_language"`
-	CreatedAt  sql.NullTime   `json:"created_at"`
-	UpdatedAt  sql.NullTime   `json:"updated_at"`
-	TotalCount int64          `json:"total_count"`
-}
-
-func (q *Queries) GetUsersPaginatedWithCount(ctx context.Context, arg GetUsersPaginatedWithCountParams) ([]GetUsersPaginatedWithCountRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersPaginatedWithCount, arg.Limit, arg.Offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GetUsersPaginatedWithCountRow{}
-	for rows.Next() {
-		var i GetUsersPaginatedWithCountRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.Username,
-			&i.Email,
-			&i.Password,
-			&i.Address,
-			&i.FullName,
-			&i.IDLanguage,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -485,7 +333,7 @@ func (q *Queries) GetUsersPaginatedWithCount(ctx context.Context, arg GetUsersPa
 
 const searchUsers = `-- name: SearchUsers :many
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -518,6 +366,7 @@ func (q *Queries) SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]U
 			&i.Username,
 			&i.Email,
 			&i.Password,
+			&i.Role,
 			&i.Address,
 			&i.FullName,
 			&i.IDLanguage,
@@ -539,7 +388,7 @@ func (q *Queries) SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]U
 
 const searchUsersByEmail = `-- name: SearchUsersByEmail :many
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -566,6 +415,7 @@ func (q *Queries) SearchUsersByEmail(ctx context.Context, dollar_1 sql.NullStrin
 			&i.Username,
 			&i.Email,
 			&i.Password,
+			&i.Role,
 			&i.Address,
 			&i.FullName,
 			&i.IDLanguage,
@@ -587,7 +437,7 @@ func (q *Queries) SearchUsersByEmail(ctx context.Context, dollar_1 sql.NullStrin
 
 const searchUsersByFullName = `-- name: SearchUsersByFullName :many
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -614,6 +464,7 @@ func (q *Queries) SearchUsersByFullName(ctx context.Context, dollar_1 sql.NullSt
 			&i.Username,
 			&i.Email,
 			&i.Password,
+			&i.Role,
 			&i.Address,
 			&i.FullName,
 			&i.IDLanguage,
@@ -635,7 +486,7 @@ func (q *Queries) SearchUsersByFullName(ctx context.Context, dollar_1 sql.NullSt
 
 const searchUsersByUsername = `-- name: SearchUsersByUsername :many
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -662,6 +513,7 @@ func (q *Queries) SearchUsersByUsername(ctx context.Context, dollar_1 sql.NullSt
 			&i.Username,
 			&i.Email,
 			&i.Password,
+			&i.Role,
 			&i.Address,
 			&i.FullName,
 			&i.IDLanguage,
@@ -683,7 +535,7 @@ func (q *Queries) SearchUsersByUsername(ctx context.Context, dollar_1 sql.NullSt
 
 const searchUsersPaginated = `-- name: SearchUsersPaginated :many
 SELECT
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 FROM
   users
 WHERE
@@ -726,6 +578,7 @@ func (q *Queries) SearchUsersPaginated(ctx context.Context, arg SearchUsersPagin
 			&i.Username,
 			&i.Email,
 			&i.Password,
+			&i.Role,
 			&i.Address,
 			&i.FullName,
 			&i.IDLanguage,
@@ -751,12 +604,13 @@ SET
   username = COALESCE($2, username),
   email = COALESCE($3, email),
   password = COALESCE($4, password),
-  address = COALESCE($5, address),
-  full_name = COALESCE($6, full_name)
+  role = COALESCE($5, role),
+  address = COALESCE($6, address),
+  full_name = COALESCE($7, full_name)
 WHERE
   id = $1
 RETURNING
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -764,6 +618,7 @@ type UpdateUserParams struct {
 	Username string         `json:"username"`
 	Email    string         `json:"email"`
 	Password string         `json:"password"`
+	Role     UserRole       `json:"role"`
 	Address  sql.NullString `json:"address"`
 	FullName sql.NullString `json:"full_name"`
 }
@@ -774,6 +629,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Username,
 		arg.Email,
 		arg.Password,
+		arg.Role,
 		arg.Address,
 		arg.FullName,
 	)
@@ -783,6 +639,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Role,
 		&i.Address,
 		&i.FullName,
 		&i.IDLanguage,
@@ -800,7 +657,7 @@ SET
 WHERE
   id = $1
 RETURNING
-  id, username, email, password, address, full_name, id_language, created_at, updated_at
+  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 `
 
 type UpdateUserProfileParams struct {
@@ -817,6 +674,7 @@ func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfilePa
 		&i.Username,
 		&i.Email,
 		&i.Password,
+		&i.Role,
 		&i.Address,
 		&i.FullName,
 		&i.IDLanguage,
