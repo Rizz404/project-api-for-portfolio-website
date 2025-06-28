@@ -58,6 +58,7 @@ func (s *Service) CreateUser(ctx context.Context, payload *domain.CreateUserPayl
 		Username: payload.Username,
 		Email:    payload.Email,
 		Password: hashedPassword,
+		Role:     *payload.Role,
 	}
 
 	usernameExist, err := s.repo.CheckUsernameExists(ctx, params.Username)

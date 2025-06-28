@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Rizz404/project-api-for-portfolio-website/domain"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -12,9 +13,10 @@ var accessTokenSecret = []byte(os.Getenv("JWT_ACCESS_SECRET"))
 var refreshTokenSecret = []byte(os.Getenv("JWT_REFRESH_SECRET"))
 
 type JWTClaims struct {
-	IDUser   string  `json:"id_user"`
-	Username *string `json:"username,omitempty"`
-	Email    *string `json:"email,omitempty"`
+	IDUser   string       `json:"id_user"`
+	Username *string      `json:"username,omitempty"`
+	Email    *string      `json:"email,omitempty"`
+	Role     *domain.Role `json:"role,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -22,6 +24,7 @@ type CreateJWTPayload struct {
 	IDUser   string
 	Username string
 	Email    string
+	Role     domain.Role
 }
 
 func CreateAccessToken(payload *CreateJWTPayload) (string, error) {
@@ -31,6 +34,7 @@ func CreateAccessToken(payload *CreateJWTPayload) (string, error) {
 		IDUser:   payload.IDUser,
 		Username: &payload.Username,
 		Email:    &payload.Email,
+		Role:     &payload.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

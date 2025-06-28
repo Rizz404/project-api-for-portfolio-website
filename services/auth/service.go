@@ -84,6 +84,7 @@ func (s *Service) Login(ctx context.Context, payload *domain.LoginPayload) (doma
 		IDUser:   user.ID,
 		Username: user.Username,
 		Email:    user.Email,
+		Role:     user.Role,
 	}
 
 	accessToken, err := utils.CreateAccessToken(jwtPayload)
@@ -100,6 +101,7 @@ func (s *Service) Login(ctx context.Context, payload *domain.LoginPayload) (doma
 		ID:           user.ID,
 		Username:     user.Username,
 		Email:        user.Email,
+		Role:         user.Role,
 		Address:      user.Address,
 		FullName:     user.FullName,
 		AccessToken:  accessToken,
