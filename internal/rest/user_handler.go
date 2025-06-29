@@ -53,7 +53,7 @@ func NewUserHandler(r chi.Router, s UserService) {
 
 	r.Route("/users", func(r chi.Router) {
 		// * CREATE
-		r.With(middleware.Auth).Post("/", handler.CreateUser)
+		r.With(middleware.Auth, middleware.AuthorizeRole(domain.RoleAdmin)).Post("/", handler.CreateUser)
 
 		// * READ (MANY)
 		r.Get("/", handler.GetUsersPaginated)

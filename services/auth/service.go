@@ -36,6 +36,7 @@ func (s *Service) Register(ctx context.Context, payload *domain.RegisterPayload)
 		Username: payload.Username,
 		Email:    payload.Email,
 		Password: hashedPassword,
+		Role:     domain.RoleUser,
 	}
 
 	usernameExist, err := s.repo.CheckUsernameExists(ctx, params.Username)

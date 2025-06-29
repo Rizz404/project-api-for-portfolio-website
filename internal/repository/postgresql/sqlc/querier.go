@@ -48,6 +48,7 @@ type Querier interface {
 	GetLanguagesPaginated(ctx context.Context, arg GetLanguagesPaginatedParams) ([]Language, error)
 	GetProject(ctx context.Context, id uuid.UUID) (GetProjectRow, error)
 	GetProjectByTranslatedName(ctx context.Context, name string) (GetProjectByTranslatedNameRow, error)
+	GetProjectsCursorFirst(ctx context.Context, limit int32) ([]GetProjectsCursorFirstRow, error)
 	GetProjectsPaginated(ctx context.Context, arg GetProjectsPaginatedParams) ([]GetProjectsPaginatedRow, error)
 	GetTech(ctx context.Context, id uuid.UUID) (Tech, error)
 	GetTechByName(ctx context.Context, name string) (Tech, error)

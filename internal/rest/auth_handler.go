@@ -2,7 +2,6 @@ package rest
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/Rizz404/project-api-for-portfolio-website/domain"
@@ -40,12 +39,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.Service.Register(r.Context(), &payload)
 	if err != nil {
-		var appErr *domain.AppError
-		if errors.As(err, &appErr) {
-			web.Error(w, appErr.Code, appErr.Error(), nil)
-		} else {
-			web.Error(w, http.StatusInternalServerError, "An unexpected error occurred", nil)
-		}
+		web.HandleError(w, err)
 		return
 	}
 
@@ -60,12 +54,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.Service.Login(r.Context(), &payload)
 	if err != nil {
-		var appErr *domain.AppError
-		if errors.As(err, &appErr) {
-			web.Error(w, appErr.Code, appErr.Error(), nil)
-		} else {
-			web.Error(w, http.StatusInternalServerError, "An unexpected error occurred", nil)
-		}
+		web.HandleError(w, err)
 		return
 	}
 

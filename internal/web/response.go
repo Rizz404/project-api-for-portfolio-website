@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"math"
 	"net/http"
 
@@ -99,9 +100,15 @@ func Error(w http.ResponseWriter, code int, message string, errorDetails any) {
 func HandleError(w http.ResponseWriter, err error) {
 	var appErr *domain.AppError
 	if errors.As(err, &appErr) {
+		if appErr.Code >= 500 {
+			// * Log error aslinya dari AppError
+			log.Printf("ERROR: Internal server error handled: %v", appErr.Unwrap())
+		}
 		Error(w, appErr.Code, appErr.Error(), nil)
 	} else {
-		Error(w, http.StatusInternalServerError, "An unexpected error occurred", nil)
+		log.Printf("ERROR: Internal server error: %v", err)
+		// * Selalu kirim error generic ke client bukan detail
+		Error(w, http.StatusInternalServerError, "An unexpected error occurred", err)
 	}
 }
 

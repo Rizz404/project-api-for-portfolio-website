@@ -23,7 +23,15 @@ SELECT EXISTS (
   );
 
 -- name: GetProject :one
-SELECT sqlc.embed(p),
+SELECT p.id,
+  p.id_user,
+  p.id_category,
+  p.is_deployed,
+  p.is_maintained,
+  p.live_demo,
+  p.source_code,
+  p.created_at,
+  p.updated_at,
   json_build_object(
     'id',
     u.id,
@@ -53,7 +61,14 @@ SELECT sqlc.embed(p),
             'description',
             pt.description,
             'language',
-            json_build_object('id', l.id, 'code', l.code, 'name', l.name)
+            json_build_object(
+              'id',
+              l.id,
+              'code',
+              l.code,
+              'name',
+              l.name
+            )
           )
           ORDER BY l.name
         ),
@@ -109,7 +124,15 @@ WHERE p.id = $1
 LIMIT 1;
 
 -- name: GetProjectByTranslatedName :one
-SELECT sqlc.embed(p),
+SELECT p.id,
+  p.id_user,
+  p.id_category,
+  p.is_deployed,
+  p.is_maintained,
+  p.live_demo,
+  p.source_code,
+  p.created_at,
+  p.updated_at,
   json_build_object(
     'id',
     u.id,
@@ -139,7 +162,14 @@ SELECT sqlc.embed(p),
             'description',
             pt_agg.description,
             'language',
-            json_build_object('id', l.id, 'code', l.code, 'name', l.name)
+            json_build_object(
+              'id',
+              l.id,
+              'code',
+              l.code,
+              'name',
+              l.name
+            )
           )
           ORDER BY l.name
         ),
@@ -196,7 +226,15 @@ WHERE pt.name = $1
 LIMIT 1;
 
 -- name: GetProjectsPaginated :many
-SELECT sqlc.embed(p),
+SELECT p.id,
+  p.id_user,
+  p.id_category,
+  p.is_deployed,
+  p.is_maintained,
+  p.live_demo,
+  p.source_code,
+  p.created_at,
+  p.updated_at,
   json_build_object(
     'id',
     u.id,
@@ -226,7 +264,14 @@ SELECT sqlc.embed(p),
             'description',
             pt.description,
             'language',
-            json_build_object('id', l.id, 'code', l.code, 'name', l.name)
+            json_build_object(
+              'id',
+              l.id,
+              'code',
+              l.code,
+              'name',
+              l.name
+            )
           )
           ORDER BY l.name
         ),
@@ -281,16 +326,16 @@ FROM projects p
 ORDER BY p.created_at DESC
 LIMIT $1 OFFSET $2;
 
--- name: SearchProjectsPaginated :many
-WITH relevant_projects AS (
-  SELECT DISTINCT ON (p.id) p.id,
-    pt.name as matched_name,
-    p.created_at
-  FROM projects p
-    JOIN project_translations pt ON p.id = pt.id_project
-  WHERE pt.name ILIKE '%' || $1::text || '%'
-)
-SELECT sqlc.embed(p),
+-- name: GetProjectsCursorFirst :many
+SELECT p.id,
+  p.id_user,
+  p.id_category,
+  p.is_deployed,
+  p.is_maintained,
+  p.live_demo,
+  p.source_code,
+  p.created_at,
+  p.updated_at,
   json_build_object(
     'id',
     u.id,
@@ -320,7 +365,123 @@ SELECT sqlc.embed(p),
             'description',
             pt.description,
             'language',
-            json_build_object('id', l.id, 'code', l.code, 'name', l.name)
+            json_build_object(
+              'id',
+              l.id,
+              'code',
+              l.code,
+              'name',
+              l.name
+            )
+          )
+          ORDER BY l.name
+        ),
+        '[]'::json
+      )
+    FROM project_translations pt
+      JOIN languages l ON pt.id_language = l.id
+    WHERE pt.id_project = p.id
+  ) as translations,
+  (
+    SELECT COALESCE(
+        json_agg(
+          json_build_object(
+            'id',
+            t.id,
+            'name',
+            t.name,
+            'description',
+            t.description,
+            'logo_url',
+            t.logo_url
+          )
+          ORDER BY t.name
+        ),
+        '[]'::json
+      )
+    FROM tech_stacks ts
+      JOIN techs t ON ts.id_tech = t.id
+    WHERE ts.id_project = p.id
+  ) as techs,
+  (
+    SELECT COALESCE(
+        json_agg(
+          json_build_object(
+            'id',
+            pi.id,
+            'file_name',
+            pi.file_name,
+            'url',
+            pi.url
+          )
+          ORDER BY pi.created_at
+        ),
+        '[]'::json
+      )
+    FROM project_images pi
+    WHERE pi.id_project = p.id
+  ) as images
+FROM projects p
+  JOIN users u ON p.id_user = u.id
+  JOIN categories c ON p.id_category = c.id
+ORDER BY p.created_at DESC
+LIMIT $1;
+
+-- name: SearchProjectsPaginated :many
+WITH relevant_projects AS (
+  SELECT DISTINCT ON (p.id) p.id,
+    pt.name as matched_name,
+    p.created_at
+  FROM projects p
+    JOIN project_translations pt ON p.id = pt.id_project
+  WHERE pt.name ILIKE '%' || $1::text || '%'
+)
+SELECT p.id,
+  p.id_user,
+  p.id_category,
+  p.is_deployed,
+  p.is_maintained,
+  p.live_demo,
+  p.source_code,
+  p.created_at,
+  p.updated_at,
+  json_build_object(
+    'id',
+    u.id,
+    'username',
+    u.username,
+    'email',
+    u.email
+  ) as user,
+  json_build_object(
+    'id',
+    c.id,
+    'name',
+    c.name,
+    'description',
+    c.description
+  ) as category,
+  (
+    SELECT COALESCE(
+        json_agg(
+          json_build_object(
+            'id',
+            pt.id,
+            'id_language',
+            pt.id_language,
+            'name',
+            pt.name,
+            'description',
+            pt.description,
+            'language',
+            json_build_object(
+              'id',
+              l.id,
+              'code',
+              l.code,
+              'name',
+              l.name
+            )
           )
           ORDER BY l.name
         ),
