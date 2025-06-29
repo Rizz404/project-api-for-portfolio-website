@@ -1,40 +1,26 @@
 -- name: CreateCategory :one
-INSERT INTO
-  categories (id, name, description)
-VALUES
-  ($1, $2, $3)
-RETURNING
-  *;
+INSERT INTO categories (id, name, description)
+VALUES ($1, $2, $3)
+RETURNING *;
 
 -- name: GetCategories :many
-SELECT
-  *
-FROM
-  categories
-ORDER BY
-  created_at DESC;
+SELECT *
+FROM categories
+ORDER BY created_at DESC;
 
 -- name: GetCategory :one
-SELECT
-  *
-FROM
-  categories
-WHERE
-  id = $1
-LIMIT
-  1;
+SELECT *
+FROM categories
+WHERE id = $1
+LIMIT 1;
 
 -- name: UpdateCategory :one
 UPDATE categories
-SET
-  name = $2,
+SET name = $2,
   description = $3
-WHERE
-  id = $1
-RETURNING
-  *;
+WHERE id = $1
+RETURNING *;
 
 -- name: DeleteCategory :exec
 DELETE FROM categories
-WHERE
-  id = $1;
+WHERE id = $1;

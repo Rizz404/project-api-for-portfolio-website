@@ -13,12 +13,9 @@ import (
 )
 
 const createCategory = `-- name: CreateCategory :one
-INSERT INTO
-  categories (id, name, description)
-VALUES
-  ($1, $2, $3)
-RETURNING
-  id, name, description, created_at, updated_at
+INSERT INTO categories (id, name, description)
+VALUES ($1, $2, $3)
+RETURNING id, name, description, created_at, updated_at
 `
 
 type CreateCategoryParams struct {
@@ -42,8 +39,7 @@ func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) 
 
 const deleteCategory = `-- name: DeleteCategory :exec
 DELETE FROM categories
-WHERE
-  id = $1
+WHERE id = $1
 `
 
 func (q *Queries) DeleteCategory(ctx context.Context, id uuid.UUID) error {
@@ -52,12 +48,9 @@ func (q *Queries) DeleteCategory(ctx context.Context, id uuid.UUID) error {
 }
 
 const getCategories = `-- name: GetCategories :many
-SELECT
-  id, name, description, created_at, updated_at
-FROM
-  categories
-ORDER BY
-  created_at DESC
+SELECT id, name, description, created_at, updated_at
+FROM categories
+ORDER BY created_at DESC
 `
 
 func (q *Queries) GetCategories(ctx context.Context) ([]Category, error) {
@@ -90,14 +83,10 @@ func (q *Queries) GetCategories(ctx context.Context) ([]Category, error) {
 }
 
 const getCategory = `-- name: GetCategory :one
-SELECT
-  id, name, description, created_at, updated_at
-FROM
-  categories
-WHERE
-  id = $1
-LIMIT
-  1
+SELECT id, name, description, created_at, updated_at
+FROM categories
+WHERE id = $1
+LIMIT 1
 `
 
 func (q *Queries) GetCategory(ctx context.Context, id uuid.UUID) (Category, error) {
@@ -115,13 +104,10 @@ func (q *Queries) GetCategory(ctx context.Context, id uuid.UUID) (Category, erro
 
 const updateCategory = `-- name: UpdateCategory :one
 UPDATE categories
-SET
-  name = $2,
+SET name = $2,
   description = $3
-WHERE
-  id = $1
-RETURNING
-  id, name, description, created_at, updated_at
+WHERE id = $1
+RETURNING id, name, description, created_at, updated_at
 `
 
 type UpdateCategoryParams struct {

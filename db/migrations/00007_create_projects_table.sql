@@ -1,17 +1,20 @@
 -- +goose up
-CREATE TABLE
-  projects (
-    id UUID NOT NULL PRIMARY KEY,
-    id_category UUID NOT NULL,
-    is_deployed BOOLEAN NOT NULL DEFAULT false,
-    is_maintained BOOLEAN NOT NULL DEFAULT true,
-    live_demo VARCHAR(255),
-    source_code VARCHAR(255),
-    created_at TIMESTAMP DEFAULT now(),
-    updated_at TIMESTAMP DEFAULT now()
-  );
+CREATE TABLE projects (
+  id UUID NOT NULL PRIMARY KEY,
+  id_user UUID NOT NULL,
+  id_category UUID NOT NULL,
+  is_deployed BOOLEAN NOT NULL DEFAULT false,
+  is_maintained BOOLEAN NOT NULL DEFAULT true,
+  live_demo VARCHAR(255),
+  source_code VARCHAR(255),
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
+);
 
 -- * Constraintnya
+ALTER TABLE projects
+ADD CONSTRAINT fk_projects_user FOREIGN KEY (id_user) REFERENCES users (id) ON DELETE RESTRICT;
+
 ALTER TABLE projects
 ADD CONSTRAINT fk_projects_category FOREIGN KEY (id_category) REFERENCES categories (id) ON DELETE RESTRICT;
 
@@ -19,8 +22,7 @@ ADD CONSTRAINT fk_projects_category FOREIGN KEY (id_category) REFERENCES categor
 CREATE INDEX idx_projects_id_category ON projects (id_category);
 
 CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON projects FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp ();
+UPDATE ON projects FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp ();
 
 -- +goose down
 DROP TRIGGER IF EXISTS set_timestamp ON projects;

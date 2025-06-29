@@ -13,14 +13,10 @@ import (
 )
 
 const checkEmailExists = `-- name: CheckEmailExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      users
-    WHERE
-      email = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM users
+    WHERE email = $1
   ) as exists
 `
 
@@ -32,14 +28,10 @@ func (q *Queries) CheckEmailExists(ctx context.Context, email string) (bool, err
 }
 
 const checkUserExists = `-- name: CheckUserExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      users
-    WHERE
-      id = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM users
+    WHERE id = $1
   ) as exists
 `
 
@@ -51,14 +43,10 @@ func (q *Queries) CheckUserExists(ctx context.Context, id uuid.UUID) (bool, erro
 }
 
 const checkUsernameExists = `-- name: CheckUsernameExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      users
-    WHERE
-      username = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM users
+    WHERE username = $1
   ) as exists
 `
 
@@ -70,10 +58,8 @@ func (q *Queries) CheckUsernameExists(ctx context.Context, username string) (boo
 }
 
 const countUsers = `-- name: CountUsers :one
-SELECT
-  COUNT(*) as total
-FROM
-  users
+SELECT COUNT(*) as total
+FROM users
 `
 
 func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
@@ -84,8 +70,7 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 }
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO
-  users (
+INSERT INTO users (
     id,
     username,
     email,
@@ -94,10 +79,8 @@ INSERT INTO
     address,
     full_name
   )
-VALUES
-  ($1, $2, $3, $4, $5, $6, $7)
-RETURNING
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -138,8 +121,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 
 const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
-WHERE
-  id = $1
+WHERE id = $1
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
@@ -148,14 +130,10 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  id = $1
-LIMIT
-  1
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+WHERE id = $1
+LIMIT 1
 `
 
 func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
@@ -177,14 +155,10 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  email = $1
-LIMIT
-  1
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+WHERE email = $1
+LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -206,14 +180,10 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  username = $1
-LIMIT
-  1
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+WHERE username = $1
+LIMIT 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
@@ -235,14 +205,10 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 }
 
 const getUsersCursorFirst = `-- name: GetUsersCursorFirst :many
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+ORDER BY created_at DESC
+LIMIT $1
 `
 
 func (q *Queries) GetUsersCursorFirst(ctx context.Context, limit int32) ([]User, error) {
@@ -280,16 +246,10 @@ func (q *Queries) GetUsersCursorFirst(ctx context.Context, limit int32) ([]User,
 }
 
 const getUsersPaginated = `-- name: GetUsersPaginated :many
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
-OFFSET
-  $2
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2
 `
 
 type GetUsersPaginatedParams struct {
@@ -332,18 +292,14 @@ func (q *Queries) GetUsersPaginated(ctx context.Context, arg GetUsersPaginatedPa
 }
 
 const searchUsers = `-- name: SearchUsers :many
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  (
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+WHERE (
     username ILIKE '%' || $1 || '%'
     OR email ILIKE '%' || $1 || '%'
     OR full_name ILIKE '%' || $1 || '%'
   )
-ORDER BY
-  CASE
+ORDER BY CASE
     WHEN username ILIKE $1 || '%' THEN 1
     WHEN email ILIKE $1 || '%' THEN 2
     WHEN full_name ILIKE $1 || '%' THEN 3
@@ -387,14 +343,10 @@ func (q *Queries) SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]U
 }
 
 const searchUsersByEmail = `-- name: SearchUsersByEmail :many
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  email ILIKE '%' || $1 || '%'
-ORDER BY
-  CASE
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+WHERE email ILIKE '%' || $1 || '%'
+ORDER BY CASE
     WHEN email ILIKE $1 || '%' THEN 1
     ELSE 2
   END,
@@ -436,14 +388,10 @@ func (q *Queries) SearchUsersByEmail(ctx context.Context, dollar_1 sql.NullStrin
 }
 
 const searchUsersByFullName = `-- name: SearchUsersByFullName :many
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  full_name ILIKE '%' || $1 || '%'
-ORDER BY
-  CASE
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+WHERE full_name ILIKE '%' || $1 || '%'
+ORDER BY CASE
     WHEN full_name ILIKE $1 || '%' THEN 1
     ELSE 2
   END,
@@ -485,14 +433,10 @@ func (q *Queries) SearchUsersByFullName(ctx context.Context, dollar_1 sql.NullSt
 }
 
 const searchUsersByUsername = `-- name: SearchUsersByUsername :many
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  username ILIKE '%' || $1 || '%'
-ORDER BY
-  CASE
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+WHERE username ILIKE '%' || $1 || '%'
+ORDER BY CASE
     WHEN username ILIKE $1 || '%' THEN 1
     ELSE 2
   END,
@@ -534,28 +478,21 @@ func (q *Queries) SearchUsersByUsername(ctx context.Context, dollar_1 sql.NullSt
 }
 
 const searchUsersPaginated = `-- name: SearchUsersPaginated :many
-SELECT
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
-FROM
-  users
-WHERE
-  (
+SELECT id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+FROM users
+WHERE (
     username ILIKE '%' || $1 || '%'
     OR email ILIKE '%' || $1 || '%'
     OR full_name ILIKE '%' || $1 || '%'
   )
-ORDER BY
-  CASE
+ORDER BY CASE
     WHEN username ILIKE $1 || '%' THEN 1
     WHEN email ILIKE $1 || '%' THEN 2
     WHEN full_name ILIKE $1 || '%' THEN 3
     ELSE 4
   END,
   created_at DESC
-LIMIT
-  $2
-OFFSET
-  $3
+LIMIT $2 OFFSET $3
 `
 
 type SearchUsersPaginatedParams struct {
@@ -600,17 +537,14 @@ func (q *Queries) SearchUsersPaginated(ctx context.Context, arg SearchUsersPagin
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
-SET
-  username = COALESCE($2, username),
+SET username = COALESCE($2, username),
   email = COALESCE($3, email),
   password = COALESCE($4, password),
   role = COALESCE($5, role),
   address = COALESCE($6, address),
   full_name = COALESCE($7, full_name)
-WHERE
-  id = $1
-RETURNING
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+WHERE id = $1
+RETURNING id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -651,13 +585,10 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 
 const updateUserProfile = `-- name: UpdateUserProfile :one
 UPDATE users
-SET
-  address = COALESCE($2, address),
+SET address = COALESCE($2, address),
   full_name = COALESCE($3, full_name)
-WHERE
-  id = $1
-RETURNING
-  id, username, email, password, role, address, full_name, id_language, created_at, updated_at
+WHERE id = $1
+RETURNING id, username, email, password, role, address, full_name, id_language, created_at, updated_at
 `
 
 type UpdateUserProfileParams struct {

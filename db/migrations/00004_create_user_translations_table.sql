@@ -1,17 +1,16 @@
 -- +goose up
-CREATE TABLE
-  user_translations (
-    id UUID NOT NULL PRIMARY KEY,
-    id_user UUID NOT NULL,
-    id_language UUID NOT NULL,
-    bio TEXT,
-    about_me TEXT,
-    additional_skills TEXT[] DEFAULT '{}',
-    languages TEXT[] DEFAULT '{}',
-    quote TEXT,
-    created_at TIMESTAMP DEFAULT now(),
-    updated_at TIMESTAMP DEFAULT now()
-  );
+CREATE TABLE user_translations (
+  id UUID NOT NULL PRIMARY KEY,
+  id_user UUID NOT NULL,
+  id_language UUID NOT NULL,
+  bio TEXT,
+  about_me TEXT,
+  additional_skills TEXT [] DEFAULT '{}',
+  languages TEXT [] DEFAULT '{}',
+  quote TEXT,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
+);
 
 -- * Constraintnya
 ALTER TABLE user_translations
@@ -27,8 +26,7 @@ CREATE INDEX idx_user_translations_skills ON user_translations USING GIN (additi
 CREATE INDEX idx_user_translations_languages ON user_translations USING GIN (languages);
 
 CREATE TRIGGER set_timestamp BEFORE
-UPDATE ON user_translations FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp ();
+UPDATE ON user_translations FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp ();
 
 -- +goose down
 DROP TRIGGER IF EXISTS set_timestamp ON user_translations;

@@ -16,22 +16,26 @@ type Querier interface {
 	CheckLangCodeExists(ctx context.Context, langCode string) (bool, error)
 	CheckLanguageExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckNameExists(ctx context.Context, name string) (bool, error)
+	CheckProjectExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckTechExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckTechNameExists(ctx context.Context, name string) (bool, error)
 	CheckUserExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckUserTranslationExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckUsernameExists(ctx context.Context, username string) (bool, error)
 	CountLanguages(ctx context.Context) (int64, error)
+	CountProjects(ctx context.Context) (int64, error)
 	CountTechs(ctx context.Context) (int64, error)
 	CountUserTranslations(ctx context.Context) (int64, error)
 	CountUsers(ctx context.Context) (int64, error)
 	CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error)
 	CreateLanguage(ctx context.Context, arg CreateLanguageParams) (Language, error)
+	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
 	CreateTech(ctx context.Context, arg CreateTechParams) (Tech, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUserTranslation(ctx context.Context, arg CreateUserTranslationParams) (UserTranslation, error)
 	DeleteCategory(ctx context.Context, id uuid.UUID) error
 	DeleteLanguage(ctx context.Context, id uuid.UUID) error
+	DeleteProject(ctx context.Context, id uuid.UUID) error
 	DeleteTech(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DeleteUserTranslation(ctx context.Context, id uuid.UUID) error
@@ -42,6 +46,9 @@ type Querier interface {
 	GetLanguageByName(ctx context.Context, name string) (Language, error)
 	GetLanguagesCursorFirst(ctx context.Context, limit int32) ([]Language, error)
 	GetLanguagesPaginated(ctx context.Context, arg GetLanguagesPaginatedParams) ([]Language, error)
+	GetProject(ctx context.Context, id uuid.UUID) (GetProjectRow, error)
+	GetProjectByTranslatedName(ctx context.Context, name string) (GetProjectByTranslatedNameRow, error)
+	GetProjectsPaginated(ctx context.Context, arg GetProjectsPaginatedParams) ([]GetProjectsPaginatedRow, error)
 	GetTech(ctx context.Context, id uuid.UUID) (Tech, error)
 	GetTechByName(ctx context.Context, name string) (Tech, error)
 	GetTechsCursorFirst(ctx context.Context, limit int32) ([]Tech, error)
@@ -62,6 +69,7 @@ type Querier interface {
 	SearchLanguagesByLangCode(ctx context.Context, dollar_1 sql.NullString) ([]Language, error)
 	SearchLanguagesByName(ctx context.Context, dollar_1 sql.NullString) ([]Language, error)
 	SearchLanguagesPaginated(ctx context.Context, arg SearchLanguagesPaginatedParams) ([]Language, error)
+	SearchProjectsPaginated(ctx context.Context, arg SearchProjectsPaginatedParams) ([]SearchProjectsPaginatedRow, error)
 	SearchTechs(ctx context.Context, dollar_1 sql.NullString) ([]Tech, error)
 	SearchTechsPaginated(ctx context.Context, arg SearchTechsPaginatedParams) ([]Tech, error)
 	SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]User, error)
@@ -71,6 +79,7 @@ type Querier interface {
 	SearchUsersPaginated(ctx context.Context, arg SearchUsersPaginatedParams) ([]User, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
 	UpdateLanguage(ctx context.Context, arg UpdateLanguageParams) (Language, error)
+	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
 	UpdateTech(ctx context.Context, arg UpdateTechParams) (Tech, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (User, error)

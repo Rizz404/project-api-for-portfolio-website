@@ -14,14 +14,10 @@ import (
 )
 
 const checkUserTranslationExists = `-- name: CheckUserTranslationExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      user_translations
-    WHERE
-      id = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM user_translations
+    WHERE id = $1
   ) as exists
 `
 
@@ -33,10 +29,8 @@ func (q *Queries) CheckUserTranslationExists(ctx context.Context, id uuid.UUID) 
 }
 
 const countUserTranslations = `-- name: CountUserTranslations :one
-SELECT
-  COUNT(*) as total
-FROM
-  user_translations
+SELECT COUNT(*) as total
+FROM user_translations
 `
 
 func (q *Queries) CountUserTranslations(ctx context.Context) (int64, error) {
@@ -47,8 +41,7 @@ func (q *Queries) CountUserTranslations(ctx context.Context) (int64, error) {
 }
 
 const createUserTranslation = `-- name: CreateUserTranslation :one
-INSERT INTO
-  user_translations (
+INSERT INTO user_translations (
     id,
     id_user,
     id_language,
@@ -58,10 +51,8 @@ INSERT INTO
     languages,
     quote
   )
-VALUES
-  ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING
-  id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
 `
 
 type CreateUserTranslationParams struct {
@@ -104,8 +95,7 @@ func (q *Queries) CreateUserTranslation(ctx context.Context, arg CreateUserTrans
 
 const deleteUserTranslation = `-- name: DeleteUserTranslation :exec
 DELETE FROM user_translations
-WHERE
-  id = $1
+WHERE id = $1
 `
 
 func (q *Queries) DeleteUserTranslation(ctx context.Context, id uuid.UUID) error {
@@ -114,14 +104,10 @@ func (q *Queries) DeleteUserTranslation(ctx context.Context, id uuid.UUID) error
 }
 
 const getUserTranslation = `-- name: GetUserTranslation :one
-SELECT
-  id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
-FROM
-  user_translations
-WHERE
-  id = $1
-LIMIT
-  1
+SELECT id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
+FROM user_translations
+WHERE id = $1
+LIMIT 1
 `
 
 func (q *Queries) GetUserTranslation(ctx context.Context, id uuid.UUID) (UserTranslation, error) {
@@ -143,16 +129,12 @@ func (q *Queries) GetUserTranslation(ctx context.Context, id uuid.UUID) (UserTra
 }
 
 const getUserTranslationByUserIDAndLangCode = `-- name: GetUserTranslationByUserIDAndLangCode :one
-SELECT
-  ut.id, ut.id_user, ut.id_language, ut.bio, ut.about_me, ut.additional_skills, ut.languages, ut.quote, ut.created_at, ut.updated_at
-FROM
-  user_translations ut
+SELECT ut.id, ut.id_user, ut.id_language, ut.bio, ut.about_me, ut.additional_skills, ut.languages, ut.quote, ut.created_at, ut.updated_at
+FROM user_translations ut
   JOIN languages l ON ut.id_language = l.id
-WHERE
-  ut.id_user = $1
+WHERE ut.id_user = $1
   AND l.lang_code = $2
-LIMIT
-  1
+LIMIT 1
 `
 
 type GetUserTranslationByUserIDAndLangCodeParams struct {
@@ -179,15 +161,11 @@ func (q *Queries) GetUserTranslationByUserIDAndLangCode(ctx context.Context, arg
 }
 
 const getUserTranslationByUserIDAndLangID = `-- name: GetUserTranslationByUserIDAndLangID :one
-SELECT
-  id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
-FROM
-  user_translations
-WHERE
-  id_user = $1
+SELECT id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
+FROM user_translations
+WHERE id_user = $1
   AND id_language = $2
-LIMIT
-  1
+LIMIT 1
 `
 
 type GetUserTranslationByUserIDAndLangIDParams struct {
@@ -214,16 +192,12 @@ func (q *Queries) GetUserTranslationByUserIDAndLangID(ctx context.Context, arg G
 }
 
 const getUserTranslationByUserIDAndLangName = `-- name: GetUserTranslationByUserIDAndLangName :one
-SELECT
-  ut.id, ut.id_user, ut.id_language, ut.bio, ut.about_me, ut.additional_skills, ut.languages, ut.quote, ut.created_at, ut.updated_at
-FROM
-  user_translations ut
+SELECT ut.id, ut.id_user, ut.id_language, ut.bio, ut.about_me, ut.additional_skills, ut.languages, ut.quote, ut.created_at, ut.updated_at
+FROM user_translations ut
   JOIN languages l ON ut.id_language = l.id
-WHERE
-  ut.id_user = $1
+WHERE ut.id_user = $1
   AND l.name = $2
-LIMIT
-  1
+LIMIT 1
 `
 
 type GetUserTranslationByUserIDAndLangNameParams struct {
@@ -250,18 +224,11 @@ func (q *Queries) GetUserTranslationByUserIDAndLangName(ctx context.Context, arg
 }
 
 const getUserTranslationsByUserIDPaginated = `-- name: GetUserTranslationsByUserIDPaginated :many
-SELECT
-  id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
-FROM
-  user_translations
-WHERE
-  id_user = $1
-ORDER BY
-  created_at DESC
-LIMIT
-  $2
-OFFSET
-  $3
+SELECT id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
+FROM user_translations
+WHERE id_user = $1
+ORDER BY created_at DESC
+LIMIT $2 OFFSET $3
 `
 
 type GetUserTranslationsByUserIDPaginatedParams struct {
@@ -305,14 +272,10 @@ func (q *Queries) GetUserTranslationsByUserIDPaginated(ctx context.Context, arg 
 }
 
 const getUserTranslationsCursorFirst = `-- name: GetUserTranslationsCursorFirst :many
-SELECT
-  id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
-FROM
-  user_translations
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
+SELECT id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
+FROM user_translations
+ORDER BY created_at DESC
+LIMIT $1
 `
 
 func (q *Queries) GetUserTranslationsCursorFirst(ctx context.Context, limit int32) ([]UserTranslation, error) {
@@ -350,16 +313,10 @@ func (q *Queries) GetUserTranslationsCursorFirst(ctx context.Context, limit int3
 }
 
 const getUserTranslationsPaginated = `-- name: GetUserTranslationsPaginated :many
-SELECT
-  id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
-FROM
-  user_translations
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
-OFFSET
-  $2
+SELECT id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
+FROM user_translations
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2
 `
 
 type GetUserTranslationsPaginatedParams struct {
@@ -403,18 +360,15 @@ func (q *Queries) GetUserTranslationsPaginated(ctx context.Context, arg GetUserT
 
 const updateUserTranslation = `-- name: UpdateUserTranslation :one
 UPDATE user_translations
-SET
-  id_user = COALESCE($2, id_user),
+SET id_user = COALESCE($2, id_user),
   id_language = COALESCE($3, id_language),
   bio = COALESCE($4, bio),
   about_me = COALESCE($5, about_me),
   additional_skills = COALESCE($6, additional_skills),
   languages = COALESCE($7, languages),
   quote = COALESCE($8, quote)
-WHERE
-  id = $1
-RETURNING
-  id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
+WHERE id = $1
+RETURNING id, id_user, id_language, bio, about_me, additional_skills, languages, quote, created_at, updated_at
 `
 
 type UpdateUserTranslationParams struct {

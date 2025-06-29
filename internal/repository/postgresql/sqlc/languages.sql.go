@@ -13,14 +13,10 @@ import (
 )
 
 const checkLangCodeExists = `-- name: CheckLangCodeExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      languages
-    WHERE
-      lang_code = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM languages
+    WHERE lang_code = $1
   ) as exists
 `
 
@@ -32,14 +28,10 @@ func (q *Queries) CheckLangCodeExists(ctx context.Context, langCode string) (boo
 }
 
 const checkLanguageExists = `-- name: CheckLanguageExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      languages
-    WHERE
-      id = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM languages
+    WHERE id = $1
   ) as exists
 `
 
@@ -51,14 +43,10 @@ func (q *Queries) CheckLanguageExists(ctx context.Context, id uuid.UUID) (bool, 
 }
 
 const checkNameExists = `-- name: CheckNameExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      languages
-    WHERE
-      name = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM languages
+    WHERE name = $1
   ) as exists
 `
 
@@ -70,10 +58,8 @@ func (q *Queries) CheckNameExists(ctx context.Context, name string) (bool, error
 }
 
 const countLanguages = `-- name: CountLanguages :one
-SELECT
-  COUNT(*) as total
-FROM
-  languages
+SELECT COUNT(*) as total
+FROM languages
 `
 
 func (q *Queries) CountLanguages(ctx context.Context) (int64, error) {
@@ -84,12 +70,9 @@ func (q *Queries) CountLanguages(ctx context.Context) (int64, error) {
 }
 
 const createLanguage = `-- name: CreateLanguage :one
-INSERT INTO
-  languages (id, name, lang_code)
-VALUES
-  ($1, $2, $3)
-RETURNING
-  id, name, lang_code, created_at, updated_at
+INSERT INTO languages(id, name, lang_code)
+VALUES($1, $2, $3)
+RETURNING id, name, lang_code, created_at, updated_at
 `
 
 type CreateLanguageParams struct {
@@ -113,8 +96,7 @@ func (q *Queries) CreateLanguage(ctx context.Context, arg CreateLanguageParams) 
 
 const deleteLanguage = `-- name: DeleteLanguage :exec
 DELETE FROM languages
-WHERE
-  id = $1
+WHERE id = $1
 `
 
 func (q *Queries) DeleteLanguage(ctx context.Context, id uuid.UUID) error {
@@ -123,14 +105,10 @@ func (q *Queries) DeleteLanguage(ctx context.Context, id uuid.UUID) error {
 }
 
 const getLanguage = `-- name: GetLanguage :one
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-WHERE
-  id = $1
-LIMIT
-  1
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+WHERE id = $1
+LIMIT 1
 `
 
 func (q *Queries) GetLanguage(ctx context.Context, id uuid.UUID) (Language, error) {
@@ -147,14 +125,10 @@ func (q *Queries) GetLanguage(ctx context.Context, id uuid.UUID) (Language, erro
 }
 
 const getLanguageByLangCode = `-- name: GetLanguageByLangCode :one
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-WHERE
-  lang_code = $1
-LIMIT
-  1
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+WHERE lang_code = $1
+LIMIT 1
 `
 
 func (q *Queries) GetLanguageByLangCode(ctx context.Context, langCode string) (Language, error) {
@@ -171,14 +145,10 @@ func (q *Queries) GetLanguageByLangCode(ctx context.Context, langCode string) (L
 }
 
 const getLanguageByName = `-- name: GetLanguageByName :one
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-WHERE
-  name = $1
-LIMIT
-  1
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+WHERE name = $1
+LIMIT 1
 `
 
 func (q *Queries) GetLanguageByName(ctx context.Context, name string) (Language, error) {
@@ -195,14 +165,10 @@ func (q *Queries) GetLanguageByName(ctx context.Context, name string) (Language,
 }
 
 const getLanguagesCursorFirst = `-- name: GetLanguagesCursorFirst :many
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+ORDER BY created_at DESC
+LIMIT $1
 `
 
 func (q *Queries) GetLanguagesCursorFirst(ctx context.Context, limit int32) ([]Language, error) {
@@ -235,16 +201,10 @@ func (q *Queries) GetLanguagesCursorFirst(ctx context.Context, limit int32) ([]L
 }
 
 const getLanguagesPaginated = `-- name: GetLanguagesPaginated :many
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
-OFFSET
-  $2
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2
 `
 
 type GetLanguagesPaginatedParams struct {
@@ -282,17 +242,13 @@ func (q *Queries) GetLanguagesPaginated(ctx context.Context, arg GetLanguagesPag
 }
 
 const searchLanguages = `-- name: SearchLanguages :many
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-WHERE
-  (
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+WHERE (
     name ILIKE '%' || $1 || '%'
     OR lang_code ILIKE '%' || $1 || '%'
   )
-ORDER BY
-  CASE
+ORDER BY CASE
     WHEN name ILIKE $1 || '%' THEN 1
     WHEN lang_code ILIKE $1 || '%' THEN 2
     ELSE 3
@@ -330,14 +286,10 @@ func (q *Queries) SearchLanguages(ctx context.Context, dollar_1 sql.NullString) 
 }
 
 const searchLanguagesByLangCode = `-- name: SearchLanguagesByLangCode :many
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-WHERE
-  lang_code ILIKE '%' || $1 || '%'
-ORDER BY
-  CASE
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+WHERE lang_code ILIKE '%' || $1 || '%'
+ORDER BY CASE
     WHEN lang_code ILIKE $1 || '%' THEN 1
     ELSE 2
   END,
@@ -374,14 +326,10 @@ func (q *Queries) SearchLanguagesByLangCode(ctx context.Context, dollar_1 sql.Nu
 }
 
 const searchLanguagesByName = `-- name: SearchLanguagesByName :many
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-WHERE
-  name ILIKE '%' || $1 || '%'
-ORDER BY
-  CASE
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+WHERE name ILIKE '%' || $1 || '%'
+ORDER BY CASE
     WHEN name ILIKE $1 || '%' THEN 1
     ELSE 2
   END,
@@ -418,26 +366,19 @@ func (q *Queries) SearchLanguagesByName(ctx context.Context, dollar_1 sql.NullSt
 }
 
 const searchLanguagesPaginated = `-- name: SearchLanguagesPaginated :many
-SELECT
-  id, name, lang_code, created_at, updated_at
-FROM
-  languages
-WHERE
-  (
+SELECT id, name, lang_code, created_at, updated_at
+FROM languages
+WHERE (
     name ILIKE '%' || $1 || '%'
     OR lang_code ILIKE '%' || $1 || '%'
   )
-ORDER BY
-  CASE
+ORDER BY CASE
     WHEN name ILIKE $1 || '%' THEN 1
     WHEN lang_code ILIKE $1 || '%' THEN 2
     ELSE 3
   END,
   created_at DESC
-LIMIT
-  $2
-OFFSET
-  $3
+LIMIT $2 OFFSET $3
 `
 
 type SearchLanguagesPaginatedParams struct {
@@ -477,13 +418,10 @@ func (q *Queries) SearchLanguagesPaginated(ctx context.Context, arg SearchLangua
 
 const updateLanguage = `-- name: UpdateLanguage :one
 UPDATE languages
-SET
-  name = COALESCE($2, name),
+SET name = COALESCE($2, name),
   lang_code = COALESCE($3, lang_code)
-WHERE
-  id = $1
-RETURNING
-  id, name, lang_code, created_at, updated_at
+WHERE id = $1
+RETURNING id, name, lang_code, created_at, updated_at
 `
 
 type UpdateLanguageParams struct {

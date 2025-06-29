@@ -72,6 +72,7 @@ type Language struct {
 
 type Project struct {
 	ID           uuid.UUID      `json:"id"`
+	IDUser       uuid.UUID      `json:"id_user"`
 	IDCategory   uuid.UUID      `json:"id_category"`
 	IsDeployed   bool           `json:"is_deployed"`
 	IsMaintained bool           `json:"is_maintained"`

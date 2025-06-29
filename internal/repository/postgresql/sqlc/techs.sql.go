@@ -13,14 +13,10 @@ import (
 )
 
 const checkTechExists = `-- name: CheckTechExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      techs
-    WHERE
-      id = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM techs
+    WHERE id = $1
   ) as exists
 `
 
@@ -32,14 +28,10 @@ func (q *Queries) CheckTechExists(ctx context.Context, id uuid.UUID) (bool, erro
 }
 
 const checkTechNameExists = `-- name: CheckTechNameExists :one
-SELECT
-  EXISTS (
-    SELECT
-      1
-    FROM
-      techs
-    WHERE
-      name = $1
+SELECT EXISTS (
+    SELECT 1
+    FROM techs
+    WHERE name = $1
   ) as exists
 `
 
@@ -51,10 +43,8 @@ func (q *Queries) CheckTechNameExists(ctx context.Context, name string) (bool, e
 }
 
 const countTechs = `-- name: CountTechs :one
-SELECT
-  COUNT(*) as total
-FROM
-  techs
+SELECT COUNT(*) as total
+FROM techs
 `
 
 func (q *Queries) CountTechs(ctx context.Context) (int64, error) {
@@ -65,12 +55,9 @@ func (q *Queries) CountTechs(ctx context.Context) (int64, error) {
 }
 
 const createTech = `-- name: CreateTech :one
-INSERT INTO
-  techs (id, name, description, logo_url)
-VALUES
-  ($1, $2, $3, $4)
-RETURNING
-  id, name, description, logo_url, created_at, updated_at
+INSERT INTO techs (id, name, description, logo_url)
+VALUES ($1, $2, $3, $4)
+RETURNING id, name, description, logo_url, created_at, updated_at
 `
 
 type CreateTechParams struct {
@@ -101,8 +88,7 @@ func (q *Queries) CreateTech(ctx context.Context, arg CreateTechParams) (Tech, e
 
 const deleteTech = `-- name: DeleteTech :exec
 DELETE FROM techs
-WHERE
-  id = $1
+WHERE id = $1
 `
 
 func (q *Queries) DeleteTech(ctx context.Context, id uuid.UUID) error {
@@ -111,14 +97,10 @@ func (q *Queries) DeleteTech(ctx context.Context, id uuid.UUID) error {
 }
 
 const getTech = `-- name: GetTech :one
-SELECT
-  id, name, description, logo_url, created_at, updated_at
-FROM
-  techs
-WHERE
-  id = $1
-LIMIT
-  1
+SELECT id, name, description, logo_url, created_at, updated_at
+FROM techs
+WHERE id = $1
+LIMIT 1
 `
 
 func (q *Queries) GetTech(ctx context.Context, id uuid.UUID) (Tech, error) {
@@ -136,14 +118,10 @@ func (q *Queries) GetTech(ctx context.Context, id uuid.UUID) (Tech, error) {
 }
 
 const getTechByName = `-- name: GetTechByName :one
-SELECT
-  id, name, description, logo_url, created_at, updated_at
-FROM
-  techs
-WHERE
-  name = $1
-LIMIT
-  1
+SELECT id, name, description, logo_url, created_at, updated_at
+FROM techs
+WHERE name = $1
+LIMIT 1
 `
 
 func (q *Queries) GetTechByName(ctx context.Context, name string) (Tech, error) {
@@ -161,14 +139,10 @@ func (q *Queries) GetTechByName(ctx context.Context, name string) (Tech, error) 
 }
 
 const getTechsCursorFirst = `-- name: GetTechsCursorFirst :many
-SELECT
-  id, name, description, logo_url, created_at, updated_at
-FROM
-  techs
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
+SELECT id, name, description, logo_url, created_at, updated_at
+FROM techs
+ORDER BY created_at DESC
+LIMIT $1
 `
 
 func (q *Queries) GetTechsCursorFirst(ctx context.Context, limit int32) ([]Tech, error) {
@@ -202,16 +176,10 @@ func (q *Queries) GetTechsCursorFirst(ctx context.Context, limit int32) ([]Tech,
 }
 
 const getTechsPaginated = `-- name: GetTechsPaginated :many
-SELECT
-  id, name, description, logo_url, created_at, updated_at
-FROM
-  techs
-ORDER BY
-  created_at DESC
-LIMIT
-  $1
-OFFSET
-  $2
+SELECT id, name, description, logo_url, created_at, updated_at
+FROM techs
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2
 `
 
 type GetTechsPaginatedParams struct {
@@ -250,14 +218,10 @@ func (q *Queries) GetTechsPaginated(ctx context.Context, arg GetTechsPaginatedPa
 }
 
 const searchTechs = `-- name: SearchTechs :many
-SELECT
-  id, name, description, logo_url, created_at, updated_at
-FROM
-  techs
-WHERE
-  name ILIKE '%' || $1 || '%'
-ORDER BY
-  CASE
+SELECT id, name, description, logo_url, created_at, updated_at
+FROM techs
+WHERE name ILIKE '%' || $1 || '%'
+ORDER BY CASE
     WHEN name ILIKE $1 || '%' THEN 1
     ELSE 2
   END,
@@ -295,22 +259,15 @@ func (q *Queries) SearchTechs(ctx context.Context, dollar_1 sql.NullString) ([]T
 }
 
 const searchTechsPaginated = `-- name: SearchTechsPaginated :many
-SELECT
-  id, name, description, logo_url, created_at, updated_at
-FROM
-  techs
-WHERE
-  name ILIKE '%' || $1 || '%'
-ORDER BY
-  CASE
+SELECT id, name, description, logo_url, created_at, updated_at
+FROM techs
+WHERE name ILIKE '%' || $1 || '%'
+ORDER BY CASE
     WHEN name ILIKE $1 || '%' THEN 1
     ELSE 2
   END,
   created_at DESC
-LIMIT
-  $2
-OFFSET
-  $3
+LIMIT $2 OFFSET $3
 `
 
 type SearchTechsPaginatedParams struct {
@@ -351,14 +308,11 @@ func (q *Queries) SearchTechsPaginated(ctx context.Context, arg SearchTechsPagin
 
 const updateTech = `-- name: UpdateTech :one
 UPDATE techs
-SET
-  name = COALESCE($2, name),
+SET name = COALESCE($2, name),
   description = COALESCE($3, description),
   logo_url = COALESCE($4, logo_url)
-WHERE
-  id = $1
-RETURNING
-  id, name, description, logo_url, created_at, updated_at
+WHERE id = $1
+RETURNING id, name, description, logo_url, created_at, updated_at
 `
 
 type UpdateTechParams struct {

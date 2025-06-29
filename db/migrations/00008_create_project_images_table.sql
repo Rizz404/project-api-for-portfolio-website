@@ -10,7 +10,7 @@ CREATE TABLE
   );
 
 ALTER TABLE project_images
-ADD CONSTRAINT fk_project_images_project FOREIGN KEY (id_project) REFERENCES categories (id) ON DELETE RESTRICT;
+ADD CONSTRAINT fk_project_images_project FOREIGN KEY (id_project) REFERENCES projects (id) ON DELETE RESTRICT;
 
 CREATE INDEX idx_project_images_id_project ON project_images (id_project);
 
