@@ -15,6 +15,7 @@ import (
 	"github.com/Rizz404/project-api-for-portfolio-website/services/category"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/language"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/project"
+	projectimage "github.com/Rizz404/project-api-for-portfolio-website/services/project-image"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/tech"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/user"
 	usertranslation "github.com/Rizz404/project-api-for-portfolio-website/services/user-translation"
@@ -80,6 +81,7 @@ func main() {
 	categoryRepo := postgresql.NewCategoryRepository(queries)
 	techRepo := postgresql.NewTechRepository(queries)
 	projectRepo := postgresql.NewProjectRepository(queries)
+	projectImageRepo := postgresql.NewProjectImageRepository(queries)
 
 	// * Service
 	authService := auth.NewService(authRepo)
@@ -89,6 +91,7 @@ func main() {
 	categoryService := category.NewService(categoryRepo)
 	techService := tech.NewService(techRepo)
 	projectService := project.NewService(projectRepo)
+	projectImageService := projectimage.NewService(projectImageRepo)
 
 	router := chi.NewRouter()
 
@@ -110,6 +113,7 @@ func main() {
 	rest.NewCategoryHandler(apiRouter, categoryService)
 	rest.NewTechHandler(apiRouter, techService)
 	rest.NewProjectHandler(apiRouter, projectService)
+	rest.NewProjectImageHandler(apiRouter, projectImageService)
 
 	router.Mount("/api/v1", apiRouter)
 

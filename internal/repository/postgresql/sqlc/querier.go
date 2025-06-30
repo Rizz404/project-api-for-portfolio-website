@@ -7,6 +7,7 @@ package sqlc
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
 	"github.com/google/uuid"
 )
@@ -17,12 +18,14 @@ type Querier interface {
 	CheckLanguageExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckNameExists(ctx context.Context, name string) (bool, error)
 	CheckProjectExists(ctx context.Context, id uuid.UUID) (bool, error)
+	CheckProjectImageExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckTechExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckTechNameExists(ctx context.Context, name string) (bool, error)
 	CheckUserExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckUserTranslationExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckUsernameExists(ctx context.Context, username string) (bool, error)
 	CountLanguages(ctx context.Context) (int64, error)
+	CountProjectImages(ctx context.Context) (int64, error)
 	CountProjects(ctx context.Context) (int64, error)
 	CountTechs(ctx context.Context) (int64, error)
 	CountUserTranslations(ctx context.Context) (int64, error)
@@ -30,12 +33,15 @@ type Querier interface {
 	CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error)
 	CreateLanguage(ctx context.Context, arg CreateLanguageParams) (Language, error)
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
+	CreateProjectImage(ctx context.Context, arg CreateProjectImageParams) (ProjectImage, error)
+	CreateProjectImagesBatch(ctx context.Context, dollar_1 json.RawMessage) ([]ProjectImage, error)
 	CreateTech(ctx context.Context, arg CreateTechParams) (Tech, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUserTranslation(ctx context.Context, arg CreateUserTranslationParams) (UserTranslation, error)
 	DeleteCategory(ctx context.Context, id uuid.UUID) error
 	DeleteLanguage(ctx context.Context, id uuid.UUID) error
 	DeleteProject(ctx context.Context, id uuid.UUID) error
+	DeleteProjectImage(ctx context.Context, id uuid.UUID) error
 	DeleteTech(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DeleteUserTranslation(ctx context.Context, id uuid.UUID) error
@@ -48,6 +54,10 @@ type Querier interface {
 	GetLanguagesPaginated(ctx context.Context, arg GetLanguagesPaginatedParams) ([]Language, error)
 	GetProject(ctx context.Context, id uuid.UUID) (GetProjectRow, error)
 	GetProjectByTranslatedName(ctx context.Context, name string) (GetProjectByTranslatedNameRow, error)
+	GetProjectImage(ctx context.Context, id uuid.UUID) (ProjectImage, error)
+	GetProjectImageByName(ctx context.Context, fileName string) (ProjectImage, error)
+	GetProjectImagesCursorFirst(ctx context.Context, limit int32) ([]ProjectImage, error)
+	GetProjectImagesPaginated(ctx context.Context, arg GetProjectImagesPaginatedParams) ([]ProjectImage, error)
 	GetProjectsCursorFirst(ctx context.Context, limit int32) ([]GetProjectsCursorFirstRow, error)
 	GetProjectsPaginated(ctx context.Context, arg GetProjectsPaginatedParams) ([]GetProjectsPaginatedRow, error)
 	GetTech(ctx context.Context, id uuid.UUID) (Tech, error)
@@ -70,6 +80,8 @@ type Querier interface {
 	SearchLanguagesByLangCode(ctx context.Context, dollar_1 sql.NullString) ([]Language, error)
 	SearchLanguagesByName(ctx context.Context, dollar_1 sql.NullString) ([]Language, error)
 	SearchLanguagesPaginated(ctx context.Context, arg SearchLanguagesPaginatedParams) ([]Language, error)
+	SearchProjectImages(ctx context.Context, dollar_1 sql.NullString) ([]ProjectImage, error)
+	SearchProjectImagesPaginated(ctx context.Context, arg SearchProjectImagesPaginatedParams) ([]ProjectImage, error)
 	SearchProjectsPaginated(ctx context.Context, arg SearchProjectsPaginatedParams) ([]SearchProjectsPaginatedRow, error)
 	SearchTechs(ctx context.Context, dollar_1 sql.NullString) ([]Tech, error)
 	SearchTechsPaginated(ctx context.Context, arg SearchTechsPaginatedParams) ([]Tech, error)
@@ -81,6 +93,7 @@ type Querier interface {
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
 	UpdateLanguage(ctx context.Context, arg UpdateLanguageParams) (Language, error)
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
+	UpdateProjectImage(ctx context.Context, arg UpdateProjectImageParams) (ProjectImage, error)
 	UpdateTech(ctx context.Context, arg UpdateTechParams) (Tech, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (User, error)
