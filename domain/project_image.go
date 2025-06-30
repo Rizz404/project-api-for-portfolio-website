@@ -3,12 +3,12 @@ package domain
 import "time"
 
 type ProjectImage struct {
-	ID        string
-	IDProject string
-	FileName  string
-	Url       string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    `json:"id"`
+	IDProject string    `json:"id_project"`
+	FileName  string    `json:"file_name"`
+	Url       string    `json:"url"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type CreateProjectImagePayload struct {

@@ -16,7 +16,9 @@ import (
 	"github.com/Rizz404/project-api-for-portfolio-website/services/language"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/project"
 	projectimage "github.com/Rizz404/project-api-for-portfolio-website/services/project-image"
+	projecttranslation "github.com/Rizz404/project-api-for-portfolio-website/services/project-translation"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/tech"
+	techstack "github.com/Rizz404/project-api-for-portfolio-website/services/tech-stack"
 	"github.com/Rizz404/project-api-for-portfolio-website/services/user"
 	usertranslation "github.com/Rizz404/project-api-for-portfolio-website/services/user-translation"
 	"github.com/common-nighthawk/go-figure"
@@ -82,6 +84,8 @@ func main() {
 	techRepo := postgresql.NewTechRepository(queries)
 	projectRepo := postgresql.NewProjectRepository(queries)
 	projectImageRepo := postgresql.NewProjectImageRepository(queries)
+	projectTranslationRepo := postgresql.NewProjectTranslationRepository(queries)
+	techStackRepo := postgresql.NewTechStackRepository(queries)
 
 	// * Service
 	authService := auth.NewService(authRepo)
@@ -92,6 +96,8 @@ func main() {
 	techService := tech.NewService(techRepo)
 	projectService := project.NewService(projectRepo)
 	projectImageService := projectimage.NewService(projectImageRepo)
+	projectTranslationService := projecttranslation.NewService(projectTranslationRepo)
+	techStackService := techstack.NewService(techStackRepo)
 
 	router := chi.NewRouter()
 
@@ -114,6 +120,8 @@ func main() {
 	rest.NewTechHandler(apiRouter, techService)
 	rest.NewProjectHandler(apiRouter, projectService)
 	rest.NewProjectImageHandler(apiRouter, projectImageService)
+	rest.NewProjectTranslationHandler(apiRouter, projectTranslationService)
+	rest.NewTechStackHandler(apiRouter, techStackService)
 
 	router.Mount("/api/v1", apiRouter)
 

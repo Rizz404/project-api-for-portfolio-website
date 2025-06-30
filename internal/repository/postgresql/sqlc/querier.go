@@ -19,6 +19,7 @@ type Querier interface {
 	CheckNameExists(ctx context.Context, name string) (bool, error)
 	CheckProjectExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckProjectImageExists(ctx context.Context, id uuid.UUID) (bool, error)
+	CheckProjectTranslationExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckTechExists(ctx context.Context, id uuid.UUID) (bool, error)
 	CheckTechNameExists(ctx context.Context, name string) (bool, error)
 	CheckUserExists(ctx context.Context, id uuid.UUID) (bool, error)
@@ -26,6 +27,7 @@ type Querier interface {
 	CheckUsernameExists(ctx context.Context, username string) (bool, error)
 	CountLanguages(ctx context.Context) (int64, error)
 	CountProjectImages(ctx context.Context) (int64, error)
+	CountProjectTranslations(ctx context.Context) (int64, error)
 	CountProjects(ctx context.Context) (int64, error)
 	CountTechs(ctx context.Context) (int64, error)
 	CountUserTranslations(ctx context.Context) (int64, error)
@@ -35,14 +37,19 @@ type Querier interface {
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
 	CreateProjectImage(ctx context.Context, arg CreateProjectImageParams) (ProjectImage, error)
 	CreateProjectImagesBatch(ctx context.Context, dollar_1 json.RawMessage) ([]ProjectImage, error)
+	CreateProjectTranslation(ctx context.Context, arg CreateProjectTranslationParams) (ProjectTranslation, error)
+	CreateProjectTranslationsBatch(ctx context.Context, dollar_1 json.RawMessage) ([]ProjectTranslation, error)
 	CreateTech(ctx context.Context, arg CreateTechParams) (Tech, error)
+	CreateTechStack(ctx context.Context, arg CreateTechStackParams) (TechStack, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	CreateUserTranslation(ctx context.Context, arg CreateUserTranslationParams) (UserTranslation, error)
 	DeleteCategory(ctx context.Context, id uuid.UUID) error
 	DeleteLanguage(ctx context.Context, id uuid.UUID) error
 	DeleteProject(ctx context.Context, id uuid.UUID) error
 	DeleteProjectImage(ctx context.Context, id uuid.UUID) error
+	DeleteProjectTranslation(ctx context.Context, id uuid.UUID) error
 	DeleteTech(ctx context.Context, id uuid.UUID) error
+	DeleteTechStack(ctx context.Context, arg DeleteTechStackParams) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	DeleteUserTranslation(ctx context.Context, id uuid.UUID) error
 	GetCategories(ctx context.Context) ([]Category, error)
@@ -58,6 +65,10 @@ type Querier interface {
 	GetProjectImageByName(ctx context.Context, fileName string) (ProjectImage, error)
 	GetProjectImagesCursorFirst(ctx context.Context, limit int32) ([]ProjectImage, error)
 	GetProjectImagesPaginated(ctx context.Context, arg GetProjectImagesPaginatedParams) ([]ProjectImage, error)
+	GetProjectTranslation(ctx context.Context, id uuid.UUID) (ProjectTranslation, error)
+	GetProjectTranslationByName(ctx context.Context, name string) (ProjectTranslation, error)
+	GetProjectTranslationsCursorFirst(ctx context.Context, limit int32) ([]ProjectTranslation, error)
+	GetProjectTranslationsPaginated(ctx context.Context, arg GetProjectTranslationsPaginatedParams) ([]ProjectTranslation, error)
 	GetProjectsCursorFirst(ctx context.Context, limit int32) ([]GetProjectsCursorFirstRow, error)
 	GetProjectsPaginated(ctx context.Context, arg GetProjectsPaginatedParams) ([]GetProjectsPaginatedRow, error)
 	GetTech(ctx context.Context, id uuid.UUID) (Tech, error)
@@ -82,6 +93,8 @@ type Querier interface {
 	SearchLanguagesPaginated(ctx context.Context, arg SearchLanguagesPaginatedParams) ([]Language, error)
 	SearchProjectImages(ctx context.Context, dollar_1 sql.NullString) ([]ProjectImage, error)
 	SearchProjectImagesPaginated(ctx context.Context, arg SearchProjectImagesPaginatedParams) ([]ProjectImage, error)
+	SearchProjectTranslations(ctx context.Context, dollar_1 sql.NullString) ([]ProjectTranslation, error)
+	SearchProjectTranslationsPaginated(ctx context.Context, arg SearchProjectTranslationsPaginatedParams) ([]ProjectTranslation, error)
 	SearchProjectsPaginated(ctx context.Context, arg SearchProjectsPaginatedParams) ([]SearchProjectsPaginatedRow, error)
 	SearchTechs(ctx context.Context, dollar_1 sql.NullString) ([]Tech, error)
 	SearchTechsPaginated(ctx context.Context, arg SearchTechsPaginatedParams) ([]Tech, error)
@@ -94,7 +107,9 @@ type Querier interface {
 	UpdateLanguage(ctx context.Context, arg UpdateLanguageParams) (Language, error)
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
 	UpdateProjectImage(ctx context.Context, arg UpdateProjectImageParams) (ProjectImage, error)
+	UpdateProjectTranslation(ctx context.Context, arg UpdateProjectTranslationParams) (ProjectTranslation, error)
 	UpdateTech(ctx context.Context, arg UpdateTechParams) (Tech, error)
+	UpdateTechStack(ctx context.Context, arg UpdateTechStackParams) (TechStack, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (User, error)
 	UpdateUserTranslation(ctx context.Context, arg UpdateUserTranslationParams) (UserTranslation, error)
